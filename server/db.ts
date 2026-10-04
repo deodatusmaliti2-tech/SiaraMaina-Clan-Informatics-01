@@ -28,6 +28,7 @@ export const CLAN_DATA_FILE = path.resolve(ROOT_DIR, "siara-maina-clan-data.json
 export const USERS_DATA_FILE = path.resolve(ROOT_DIR, "siara-maina-clan-users.json");
 
 export const RECORDS_FILE = path.resolve(DATA_DIR, "records.json");
+export const DELETED_RECORDS_FILE = path.resolve(DATA_DIR, "deleted_ids.json");
 export const USERS_FILE = path.resolve(DATA_DIR, "users.json");
 export const PAYMENTS_FILE = path.resolve(DATA_DIR, "payments.json");
 export const AUDIT_FILE = path.resolve(DATA_DIR, "audit_logs.json");
@@ -127,6 +128,7 @@ async function fetchFromFirestore(collectionName: string): Promise<any[]> {
 
 class HardenedDatabaseEngine {
   private records: any[] = [];
+  private deletedIds: Set<string> = new Set();
   private users: any[] = [];
   private payments: any[] = [];
   private auditLogs: any[] = [];
@@ -148,6 +150,12 @@ class HardenedDatabaseEngine {
   }
 
   private async loadAll() {
+    // 0. Load deleted member tombstones (authoritative deletion registry)
+    const loadedDeleted = atomicReadJsonSync(DELETED_RECORDS_FILE, []);
+    if (Array.isArray(loadedDeleted)) {
+      this.deletedIds = new Set(loadedDeleted.map(String));
+    }
+
     // 1. Load baseline local records (always safe)
     const loadedRecords = atomicReadJsonSync(RECORDS_FILE, null);
     if (Array.isArray(loadedRecords) && loadedRecords.length > 0) {
@@ -159,6 +167,16 @@ class HardenedDatabaseEngine {
         this.records = Array.isArray(parsed) ? parsed : parsed.records || [];
       } catch {}
     }
+
+    // Prune deleted records and invalid junk from records
+    this.records = this.records.filter((r) => {
+      if (!r) return false;
+      const idStr = String(r.id || r.uid || "");
+      if (idStr && this.deletedIds.has(idStr)) return false;
+      if (r.id === "master_ledger" || r.id === "all") return false;
+      if (!r.firstName && !r.lastName && !r.middleName) return false;
+      return true;
+    });
 
     const loadedUsers = atomicReadJsonSync(USERS_FILE, null);
     if (Array.isArray(loadedUsers)) {
@@ -203,13 +221,15 @@ class HardenedDatabaseEngine {
     this.persistAll();
   }
 
-    public async pullLatestFromCloud(): Promise<void> {
+  public async pullLatestFromCloud(): Promise<void> {
+    // Only pull if records are completely empty (initial bootstrap only)
+    if (this.records && this.records.length > 0) return;
     try {
       const res = await fetch("https://siaramaina.researchlinktz.com/api/db/collections/records");
       if (res.ok) {
         const json = await res.json();
         const recs = json.data || (Array.isArray(json) ? json : null);
-        if (Array.isArray(recs) && recs.length > 0) {
+        if (Array.isArray(recs) && recs.length > 0 && this.records.length === 0) {
           this.records = recs;
           this.persistAll();
         }
@@ -222,10 +242,26 @@ class HardenedDatabaseEngine {
   }
 
   private persistAll() {
+    this.records = this.records.filter((r) => {
+      if (!r) return false;
+      const idStr = String(r.id || r.uid || "");
+      if (idStr && this.deletedIds.has(idStr)) return false;
+      if (r.id === "master_ledger" || r.id === "all") return false;
+      if (!r.firstName && !r.lastName && !r.middleName) return false;
+      return true;
+    });
+
     atomicWriteJsonSync(RECORDS_FILE, this.records);
+    atomicWriteJsonSync(DELETED_RECORDS_FILE, Array.from(this.deletedIds));
     atomicWriteJsonSync(USERS_FILE, this.users);
     atomicWriteJsonSync(PAYMENTS_FILE, this.payments);
     atomicWriteJsonSync(AUDIT_FILE, this.auditLogs);
+    atomicWriteJsonSync(CLAN_DATA_FILE, {
+      project: "SiaraMaina Clan Informatics",
+      exportedAt: new Date().toISOString(),
+      count: this.records.length,
+      records: this.records
+    });
   }
 
   public getVersion(): number {
@@ -288,14 +324,26 @@ class HardenedDatabaseEngine {
     return false;
   }
 
-  public async replaceCollection(name: string, items: any[]): Promise<boolean> {
+  public async replaceCollection(name: string, items: any[], deletedIdsList?: string[]): Promise<boolean> {
     const list = Array.isArray(items) ? [...items] : [];
     if (name === "records" || name === "members") {
-      this.records = list.map((r) => ({
-        ...r,
-        v: (r.v || 0) + 1,
-        updatedAt: new Date().toISOString(),
-      }));
+      if (Array.isArray(deletedIdsList)) {
+        deletedIdsList.forEach(id => { if (id) this.deletedIds.add(String(id)); });
+      }
+      this.records = list
+        .filter((r) => {
+          if (!r) return false;
+          const idStr = String(r.id || r.uid || "");
+          if (idStr && this.deletedIds.has(idStr)) return false;
+          if (r.id === "master_ledger" || r.id === "all") return false;
+          if (!r.firstName && !r.lastName && !r.middleName) return false;
+          return true;
+        })
+        .map((r) => ({
+          ...r,
+          v: (r.v || 0) + 1,
+          updatedAt: new Date().toISOString(),
+        }));
 
       
 
@@ -409,47 +457,96 @@ class HardenedDatabaseEngine {
   }
 
   public async deleteDocument(collectionName: string, id: string): Promise<boolean> {
-    let targetList: any[];
-    let tableMapping = "";
+    const idStr = String(id || "");
+    if (!idStr) return false;
 
     if (collectionName === "records" || collectionName === "members") {
-      targetList = this.records;
-      tableMapping = "records";
-    } else if (collectionName === "users") {
-      targetList = this.users;
-      tableMapping = "profiles";
-    } else if (collectionName === "payments") {
-      return false;
-    } else {
-      targetList = this.auditLogs;
-      tableMapping = "audit_logs";
-    }
+      this.deletedIds.add(idStr);
+      const initialLen = this.records.length;
+      this.records = this.records.filter((i) => {
+        const itemStr = String(i.id || i.uid || "");
+        return itemStr !== idStr && itemStr !== id;
+      });
 
-    const initialLen = targetList.length;
-    const filtered = targetList.filter(i => i.id !== id && i.uid !== id);
-    if (filtered.length !== initialLen) {
-      if (collectionName === "records" || collectionName === "members") {
-        this.records = filtered;
-      } else if (collectionName === "users") {
-        this.users = filtered;
-      } else {
-        this.auditLogs = filtered;
-      }
+      // Clear relational links in remaining records
+      this.records.forEach((item) => {
+        if (String(item.fatherId) === idStr) item.fatherId = "";
+        if (String(item.motherId) === idStr) item.motherId = "";
+        if (String(item.spouseId) === idStr) item.spouseId = "";
+        if (Array.isArray(item.siblingIds)) {
+          item.siblingIds = item.siblingIds.filter((sid: any) => String(sid) !== idStr);
+        }
+      });
 
-      
-
-      // Delete-through to Firestore (Durable Cloud Fallback)
       try {
-        const fsCol = collectionName === "members" ? "records" : collectionName;
-        await deleteFromFirestore(fsCol, id);
+        const fsCol = "records";
+        await deleteFromFirestore(fsCol, idStr);
       } catch (fsErr: any) {
-        console.warn(`[DatabaseEngine] Background Firestore delete-through failed for ${id}:`, fsErr.message);
+        console.warn(`[DatabaseEngine] Background Firestore delete-through failed for ${idStr}:`, fsErr.message);
       }
 
       await this.save();
       return true;
+    } else if (collectionName === "users") {
+      const initialLen = this.users.length;
+      this.users = this.users.filter(i => String(i.id || i.uid) !== idStr);
+      if (this.users.length !== initialLen) {
+        try { await deleteFromFirestore("users", idStr); } catch (e) {}
+        await this.save();
+        return true;
+      }
+      return false;
+    } else if (collectionName === "payments") {
+      return false;
+    } else {
+      const initialLen = this.auditLogs.length;
+      this.auditLogs = this.auditLogs.filter(i => String(i.id || i.uid) !== idStr);
+      if (this.auditLogs.length !== initialLen) {
+        await this.save();
+        return true;
+      }
+      return false;
     }
-    return false;
+  }
+
+  public getDeletedIds(): string[] {
+    return Array.from(this.deletedIds);
+  }
+
+  public addDeletedId(id: string): void {
+    if (!id) return;
+    const idStr = String(id);
+    this.deletedIds.add(idStr);
+    this.records = this.records.filter((i) => String(i.id || i.uid || "") !== idStr);
+    this.records.forEach((item) => {
+      if (String(item.fatherId) === idStr) item.fatherId = "";
+      if (String(item.motherId) === idStr) item.motherId = "";
+      if (String(item.spouseId) === idStr) item.spouseId = "";
+      if (Array.isArray(item.siblingIds)) {
+        item.siblingIds = item.siblingIds.filter((sid: any) => String(sid) !== idStr);
+      }
+    });
+    this.save();
+  }
+
+  public addDeletedIds(ids: string[]): void {
+    if (!Array.isArray(ids)) return;
+    ids.forEach((id) => {
+      if (id) {
+        const idStr = String(id);
+        this.deletedIds.add(idStr);
+      }
+    });
+    this.records = this.records.filter((i) => !this.deletedIds.has(String(i.id || i.uid || "")));
+    this.records.forEach((item) => {
+      if (this.deletedIds.has(String(item.fatherId))) item.fatherId = "";
+      if (this.deletedIds.has(String(item.motherId))) item.motherId = "";
+      if (this.deletedIds.has(String(item.spouseId))) item.spouseId = "";
+      if (Array.isArray(item.siblingIds)) {
+        item.siblingIds = item.siblingIds.filter((sid: any) => !this.deletedIds.has(String(sid)));
+      }
+    });
+    this.save();
   }
 
   public logSecurityEvent(event: any) {

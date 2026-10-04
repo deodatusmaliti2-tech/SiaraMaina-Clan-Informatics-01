@@ -244,9 +244,6 @@ apiRouter.post("/stripe/webhook", handleStripeWebhook);
 // 5. Atomic JSON Database Collections CRUD
 apiRouter.get("/db/collections/:collection", async (req: Request, res: Response) => {
   const collectionName = req.params.collection as string;
-  if (collectionName === "records" || collectionName === "members" || collectionName === "payments") {
-    await dbEngine.pullLatestFromCloud();
-  }
   if (collectionName === "metrics" || collectionName === "system") {
     const metrics = metricsEngine.getMetrics();
     const users = (dbEngine.getCollection("users") as any[]) || [];
@@ -274,9 +271,6 @@ apiRouter.get("/db/collections/:collection", async (req: Request, res: Response)
     return res.json({ success: true, collection: collectionName, count: 1, data: [statsDoc] });
   }
 
-  if (collectionName === "records" || collectionName === "members" || collectionName === "payments") {
-    await dbEngine.pullLatestFromCloud();
-  }
   const items = dbEngine.getCollection(collectionName as keyof DatabaseSchema);
   res.json({ success: true, collection: collectionName, count: items.length || 0, data: items });
 });
@@ -284,9 +278,6 @@ apiRouter.get("/db/collections/:collection", async (req: Request, res: Response)
 apiRouter.get("/db/collections/:collection/:id", async (req: Request, res: Response) => {
   const collectionName = req.params.collection as keyof DatabaseSchema;
   const id = req.params.id;
-  if (collectionName === "records" || collectionName === "members" || collectionName === "payments") {
-    await dbEngine.pullLatestFromCloud();
-  }
   const items = dbEngine.getCollection(collectionName);
   if (Array.isArray(items)) {
     const item = items.find((i) => i.id === id || i.uid === id);
@@ -296,30 +287,134 @@ apiRouter.get("/db/collections/:collection/:id", async (req: Request, res: Respo
   res.json({ success: true, doc: items });
 });
 
+apiRouter.get(["/members", "/db/members"], (req: Request, res: Response) => {
+  const records = dbEngine.getCollection("records") || [];
+  res.json({ success: true, count: records.length, records, members: records, data: records });
+});
+
+apiRouter.get("/db/deleted-ids", (req: Request, res: Response) => {
+  const deletedIds = dbEngine.getDeletedIds();
+  res.json({ success: true, count: deletedIds.length, deletedIds });
+});
+
+apiRouter.post("/db/deleted-ids", async (req: Request, res: Response) => {
+  try {
+    const { id, ids } = req.body;
+    const toAdd: string[] = [];
+    if (id) toAdd.push(String(id));
+    if (Array.isArray(ids)) ids.forEach((i: any) => { if (i) toAdd.push(String(i)); });
+    if (toAdd.length > 0) {
+      dbEngine.addDeletedIds(toAdd);
+      await dbEngine.save();
+    }
+    const currentRecords = dbEngine.getCollection("records");
+    syncManager.broadcast("doc_change", {
+      action: "DELETE",
+      collection: "records",
+      id: toAdd[0] || "",
+      deletedIds: dbEngine.getDeletedIds(),
+      records: currentRecords,
+      count: currentRecords.length,
+      timestamp: new Date().toISOString(),
+    });
+    res.json({ success: true, count: toAdd.length, deletedIds: dbEngine.getDeletedIds(), remainingRecords: currentRecords.length });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // Authoritative Bulk Records Synchronization Endpoint
 apiRouter.post("/db/sync/records", async (req: Request, res: Response) => {
   try {
-    const { records, author } = req.body;
+    const { records, deletedIds, author } = req.body;
     if (!Array.isArray(records)) {
       return res.status(400).json({ success: false, error: "records must be an array" });
     }
-    await dbEngine.replaceCollection("records", records);
-    await dbEngine.replaceCollection("members", records);
+    const delList = Array.isArray(deletedIds) ? deletedIds : undefined;
+    await dbEngine.replaceCollection("records", records, delList);
+    await dbEngine.replaceCollection("members", records, delList);
+
+    const updatedRecords = dbEngine.getCollection("records");
+    const allDeletedIds = dbEngine.getDeletedIds();
 
     syncManager.broadcast("doc_change", {
       action: "SYNC_ALL",
       collection: "records",
-      records: records,
-      count: records.length,
+      records: updatedRecords,
+      deletedIds: allDeletedIds,
+      count: updatedRecords.length,
       author: author || "client",
       timestamp: new Date().toISOString(),
     });
 
     res.json({
       success: true,
-      count: records.length,
+      count: updatedRecords.length,
+      deletedIds: allDeletedIds,
       message: "Records synchronized authoritatively across all devices",
     });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+apiRouter.post("/github/push", async (req: Request, res: Response) => {
+  try {
+    const token = req.body.token || process.env.GITHUB_TOKEN;
+    const repo = req.body.repo || process.env.GITHUB_REPOSITORY || "deodatusmaliti2-tech/SiaraMaina-Clan-Informatics-01";
+    if (!token) {
+      return res.status(400).json({ success: false, error: "GitHub token not provided and GITHUB_TOKEN env var not set." });
+    }
+    const records = dbEngine.getCollection("records") || [];
+    const deletedIds = dbEngine.getDeletedIds();
+    const cleanRecords = records.filter((r: any) => r && r.id && !deletedIds.includes(String(r.id)));
+
+    const payload = {
+      project: "SiaraMaina Clan Informatics",
+      exportedAt: new Date().toISOString(),
+      count: cleanRecords.length,
+      records: cleanRecords
+    };
+
+    const url = `https://api.github.com/repos/${repo}/contents/siara-maina-clan-data.json`;
+    const getRes = await fetch(url, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Accept": "application/vnd.github.v3+json",
+        "User-Agent": "SiaraMaina-Clan-Informatics"
+      }
+    });
+
+    let sha: string | undefined = undefined;
+    if (getRes.ok) {
+      const fileData = await getRes.json() as any;
+      sha = fileData.sha;
+    }
+
+    const contentStr = Buffer.from(JSON.stringify(payload, null, 2)).toString("base64");
+    const putRes = await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+        "Accept": "application/vnd.github.v3+json",
+        "User-Agent": "SiaraMaina-Clan-Informatics"
+      },
+      body: JSON.stringify({
+        message: `Sync clan dataset (${cleanRecords.length} records) from Google AI Studio / Cloud Engine`,
+        content: contentStr,
+        branch: process.env.GITHUB_BRANCH || "main",
+        sha: sha
+      })
+    });
+
+    if (!putRes.ok) {
+      const errTxt = await putRes.text();
+      throw new Error(`GitHub API error: ${putRes.status} - ${errTxt}`);
+    }
+
+    const commitData = await putRes.json();
+    res.json({ success: true, count: cleanRecords.length, commit: commitData });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -373,20 +468,25 @@ apiRouter.put("/db/collections/:collection/:id", async (req: Request, res: Respo
   }
 });
 
-apiRouter.delete("/db/collections/:collection/:id", async (req: Request, res: Response) => {
+apiRouter.delete(["/db/collections/:collection/:id", "/members/:id"], async (req: Request, res: Response) => {
   try {
-    const collectionName = req.params.collection as keyof DatabaseSchema;
+    const collectionName = (req.params.collection || "records") as keyof DatabaseSchema;
     const id = req.params.id;
     const success = await dbEngine.deleteDocument(collectionName, id);
+    const remainingRecords = dbEngine.getCollection("records");
+    const allDeletedIds = dbEngine.getDeletedIds();
 
     syncManager.broadcast("doc_change", {
       action: "DELETE",
       collection: collectionName,
       id,
+      deletedIds: allDeletedIds,
+      records: remainingRecords,
+      count: remainingRecords.length,
       timestamp: new Date().toISOString(),
     });
 
-    res.json({ success, id });
+    res.json({ success, id, remainingRecords: remainingRecords.length, deletedIds: allDeletedIds });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });
   }

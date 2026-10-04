@@ -50,6 +50,93 @@ app.use((req, res, next) => {
   next();
 });
 
+app.post(["/github/push", "/api/github/push"], async (req, res) => {
+  try {
+    const token = req.body.token || process.env.GITHUB_TOKEN;
+    const repo = req.body.repo || process.env.GITHUB_REPOSITORY || "deodatusmaliti2-tech/SiaraMaina-Clan-Informatics-01";
+    if (!token) {
+      return res.status(400).json({ success: false, error: "GitHub token not provided and GITHUB_TOKEN env var not set." });
+    }
+    const records = req.body.records || dbEngine.getCollection("records") || [];
+    const deletedIds = dbEngine.getDeletedIds();
+    const cleanRecords = records.filter((r: any) => r && r.id && !deletedIds.includes(String(r.id)));
+
+    const payload = {
+      project: "SiaraMaina Clan Informatics",
+      exportedAt: new Date().toISOString(),
+      count: cleanRecords.length,
+      records: cleanRecords
+    };
+
+    const url = `https://api.github.com/repos/${repo}/contents/siara-maina-clan-data.json`;
+    let commitData: any = null;
+    let success = false;
+    const maxRetries = 5;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const getRes = await fetch(url, {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Accept": "application/vnd.github.v3+json",
+            "User-Agent": "SiaraMaina-Clan-Informatics"
+          }
+        });
+
+        let sha: string | undefined = undefined;
+        if (getRes.ok) {
+          const fileData = await getRes.json() as any;
+          sha = fileData.sha;
+        }
+
+        const contentStr = Buffer.from(JSON.stringify(payload, null, 2)).toString("base64");
+        const putRes = await fetch(url, {
+          method: "PUT",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+            "Accept": "application/vnd.github.v3+json",
+            "User-Agent": "SiaraMaina-Clan-Informatics"
+          },
+          body: JSON.stringify({
+            message: `Sync clan dataset (${cleanRecords.length} records) from Google AI Studio / Cloud Engine`,
+            content: contentStr,
+            branch: process.env.GITHUB_BRANCH || "main",
+            sha: sha
+          })
+        });
+
+        if (putRes.ok) {
+          commitData = await putRes.json();
+          success = true;
+          break;
+        }
+
+        const errTxt = await putRes.text();
+        if (putRes.status === 409 && attempt < maxRetries) {
+          console.warn(`[GitHub Push] 409 Conflict on attempt ${attempt}. Retrying with fresh SHA...`);
+          await new Promise((resolve) => setTimeout(resolve, 800 * attempt));
+          continue;
+        }
+        throw new Error(`GitHub API error: ${putRes.status} - ${errTxt}`);
+      } catch (retryErr: any) {
+        if (attempt === maxRetries) {
+          throw retryErr;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 800 * attempt));
+      }
+    }
+
+    if (!success) {
+      throw new Error("GitHub push failed after max retries due to conflict resolution failure.");
+    }
+
+    res.json({ success: true, count: cleanRecords.length, commit: commitData });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 app.use("/api", apiRouter);
 
 app.get("/api/health", (req, res) => {

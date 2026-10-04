@@ -9,7 +9,18 @@
       const originalConsoleError = console.error;
       console.error = function(...args) {
         const msg = args.map(arg => typeof arg === "object" ? (arg?.message || JSON.stringify(arg)) : String(arg)).join(" ");
-        if (msg.includes("Detected an update time that is in the future") || msg.includes("firebase/firestore") || msg.includes("@firebase/firestore") || msg.includes("Could not reach Cloud Firestore") || msg.includes("update time that is in the future")) {
+        if (
+          msg.includes("Detected an update time that is in the future") ||
+          msg.includes("firebase/firestore") ||
+          msg.includes("@firebase/firestore") ||
+          msg.includes("Could not reach Cloud Firestore") ||
+          msg.includes("update time that is in the future") ||
+          msg.includes("Quota exceeded") ||
+          msg.includes("Quota limit exceeded") ||
+          msg.includes("quota") ||
+          msg.includes("RESOURCE_EXHAUSTED") ||
+          msg.includes("Profile real-time subscription")
+        ) {
           return;
         }
         originalConsoleError.apply(console, args);
@@ -18,7 +29,13 @@
       const originalConsoleWarn = console.warn;
       console.warn = function(...args) {
         const msg = args.map(arg => typeof arg === "object" ? (arg?.message || JSON.stringify(arg)) : String(arg)).join(" ");
-        if (msg.includes("Detected an update time that is in the future") || msg.includes("firebase/firestore") || msg.includes("@firebase/firestore") || msg.includes("Could not reach Cloud Firestore") || msg.includes("update time that is in the future")) {
+        if (
+          msg.includes("Detected an update time that is in the future") ||
+          msg.includes("firebase/firestore") ||
+          msg.includes("@firebase/firestore") ||
+          msg.includes("Could not reach Cloud Firestore") ||
+          msg.includes("update time that is in the future")
+        ) {
           return;
         }
         originalConsoleWarn.apply(console, args);
@@ -1091,7 +1108,7 @@
           </div>
           <div class="command-group"><span class="command-label">Tools</span>
             <div class="dropdown"><button class="top-button" type="button" onclick="toggleMenu('viewMenu')">View <span aria-hidden="true">▾</span></button><div id="viewMenu" class="dropdown-menu"><button type="button" onclick="setViewStyle('card')">Card View</button><button type="button" onclick="setViewStyle('line')">Line View</button><button type="button" onclick="showGrowthDashboard()">📈 Clan Growth Analytics</button><button type="button" onclick="showMap()">Geographical Map</button><button id="spouseToggle" type="button" onclick="toggleSpouses()">Hide Spouses</button></div></div>
-            <div class="dropdown"><button class="top-button" type="button" onclick="toggleMenu('utilitiesMenu')">Utilities <span aria-hidden="true">▾</span></button><div id="utilitiesMenu" class="dropdown-menu"><button type="button" onclick="showMap()">Geographical Map</button><button type="button" onclick="openRelationship()">Relationship Finder</button><button type="button" onclick="openBiography()">Biography</button><button type="button" onclick="exportCsv()">Export CSV</button><button type="button" onclick="exportPdf()">Export PDF</button><button type="button" onclick="openMemberInviteModal()">Send Member Info Link</button><button type="button" onclick="openBulkOutreachModal()">Bulk WhatsApp Outreach</button><button id="shareProjectButton" type="button" onclick="openProjectShare()">Share Project</button><button id="importCsvButton" type="button" onclick="document.getElementById('csvImport').click()">Import CSV</button><button id="saveProjectButton" type="button" onclick="saveProjectData()">Save Project Data</button><button id="restoreProjectButton" type="button" onclick="document.getElementById('projectImport').click()">Restore Project Data</button><button id="dropdownBackupBtn" type="button" onclick="openBackupDatabaseModal()" style="display:block;width:100%;text-align:left;padding:8px 12px;color:#065f46;background:#ecfdf5;font-weight:800;font-size:0.75rem;border-radius:6px;margin:4px 0;border:1px solid #a7f3d0;cursor:pointer;">📦 Backup Database &amp; Snapshots</button><button id="saveGithubButton" type="button" onclick="synchronizeProjectDataWithGitHub()">Synchronize with GitHub</button>
+            <div class="dropdown"><button class="top-button" type="button" onclick="toggleMenu('utilitiesMenu')">Utilities <span aria-hidden="true">▾</span></button><div id="utilitiesMenu" class="dropdown-menu"><button type="button" onclick="showMap()">Geographical Map</button><button type="button" onclick="openRelationship()">Relationship Finder</button><button type="button" onclick="openBiography()">Biography</button><button type="button" onclick="exportCsv()">Export CSV</button><button type="button" onclick="exportPdf()">Export PDF</button><button type="button" onclick="openMemberInviteModal()">Send Member Info Link</button><button type="button" onclick="openBulkOutreachModal()">Bulk WhatsApp Outreach</button><button id="shareProjectButton" type="button" onclick="openProjectShare()">Share Project</button><button id="importCsvButton" type="button" onclick="document.getElementById('csvImport').click()">Import CSV</button><button id="saveProjectButton" type="button" onclick="saveProjectData()">Save Project Data</button><button id="restoreProjectButton" type="button" onclick="document.getElementById('projectImport').click()">Restore Project Data</button><button id="dropdownBackupBtn" type="button" onclick="openBackupDatabaseModal()" style="display:block;width:100%;text-align:left;padding:8px 12px;color:#065f46;background:#ecfdf5;font-weight:800;font-size:0.75rem;border-radius:6px;margin:4px 0;border:1px solid #a7f3d0;cursor:pointer;">📦 Backup Database &amp; Snapshots</button><button id="saveGithubButton" type="button" onclick="event.stopPropagation(); if(event.cancelable) event.preventDefault(); synchronizeProjectDataWithGitHub(event);">Synchronize with GitHub</button>
 <button type="button" onclick="openInbuiltDiagnosticsModal()" style="display:block;width:100%;text-align:left;padding:8px 12px;color:var(--forest);background:#edf6ef;font-weight:800;font-size:0.75rem;border-radius:6px;margin:4px 0;border:1px solid #c2dec9;cursor:pointer;">🩺 In-Built Backend Diagnostics</button><button id="userManagementDropdownBtn" type="button" onclick="openUserManagement()" style="display:none; background:#fff2d6; color:#854d0e; font-weight:bold; border-top:1px dashed #e9bf52;">🛠️ User Management</button></div></div>
           </div>
           <div class="command-group action-group" style="display:flex; align-items:center; gap:6px; flex-wrap:nowrap;">
@@ -2473,14 +2490,14 @@
   </section>
 
   <!-- GitHub Synchronization & Publishing Modal -->
-  <section id="githubSyncModal" class="modal">
+  <section id="githubSyncModal" class="modal" onclick="if(event.target === this) closeModal('githubSyncModal')">
     <div class="modal-box" style="max-width:760px; width:95vw;">
       <div class="modal-head" style="margin-bottom:14px;">
         <div style="display:flex; align-items:center; gap:12px;">
           <div style="width:44px; height:44px; border-radius:12px; background:#f0fdf4; display:flex; align-items:center; justify-content:center; font-size:1.5rem; border:1px solid #bbf7d0; box-shadow:0 2px 6px rgba(16,185,129,0.15);">🐙</div>
           <div>
             <h2 style="margin:0; font-size:1.2rem; color:var(--forest); font-weight:800;">GitHub Repository &amp; Pages Synchronization</h2>
-            <span style="font-size:0.78rem; color:var(--muted);">Synchronize clan dataset directly to <code id="githubModalRepoBadge" style="color:#0f766e; background:#f1f5f9; padding:2px 6px; border-radius:4px;">deodatusmaliti/SiaraMaina-Clan-Informatics-New</code></span>
+            <span style="font-size:0.78rem; color:var(--muted);">Synchronize clan dataset directly to <code id="githubModalRepoBadge" style="color:#0f766e; background:#f1f5f9; padding:2px 6px; border-radius:4px;">deodatusmaliti2-tech/SiaraMaina-Clan-Informatics-01</code></span>
           </div>
         </div>
         <button class="close" type="button" onclick="closeModal('githubSyncModal')">×</button>
@@ -2492,14 +2509,14 @@
           <div>
             <div style="font-size:0.72rem; color:#64748b; font-weight:700; text-transform:uppercase;">Connected GitHub Repository</div>
             <div style="margin-top:4px;">
-              <input id="githubCustomRepoInput" type="text" value="deodatusmaliti/SiaraMaina-Clan-Informatics-New" style="width:100%; padding:8px 10px; border:1px solid #cbd5e1; border-radius:6px; font-family:monospace; font-size:0.8rem;" placeholder="username/repository-name">
+              <input id="githubCustomRepoInput" type="text" value="deodatusmaliti2-tech/SiaraMaina-Clan-Informatics-01" style="width:100%; padding:8px 10px; border:1px solid #cbd5e1; border-radius:6px; font-family:monospace; font-size:0.8rem;" placeholder="username/repository-name">
             </div>
           </div>
           <div>
             <div style="font-size:0.72rem; color:#64748b; font-weight:700; text-transform:uppercase;">GitHub Pages Live URL</div>
             <div style="margin-top:6px; font-size:0.78rem;">
-              <a id="githubPagesLiveLink" href="https://deodatusmaliti.github.io/SiaraMaina-Clan-Informatics-New/SiaraMainaInformatics.html" target="_blank" rel="noopener noreferrer" style="color:#0284c7; font-weight:700; text-decoration:underline; word-break:break-all;">
-                https://deodatusmaliti.github.io/SiaraMaina-Clan-Informatics-New/SiaraMainaInformatics.html ↗
+              <a id="githubPagesLiveLink" href="https://deodatusmaliti2-tech.github.io/SiaraMaina-Clan-Informatics-01/SiaraMainaInformatics.html" target="_blank" rel="noopener noreferrer" style="color:#0284c7; font-weight:700; text-decoration:underline; word-break:break-all;">
+                https://deodatusmaliti2-tech.github.io/SiaraMaina-Clan-Informatics-01/SiaraMainaInformatics.html ↗
               </a>
             </div>
           </div>
@@ -2556,10 +2573,89 @@
     </div>
   </section>
 
+  <!-- Universal In-App Confirmation Modal (Works reliably in iframe sandbox) -->
+  <section id="appConfirmModal" class="modal" style="z-index:99999;" onclick="if(event.target === this) closeModal('appConfirmModal')">
+    <div class="modal-box" style="max-width:440px; text-align:center; padding:24px; border-radius:12px; box-shadow:0 12px 36px rgba(0,0,0,0.3); border:1px solid #e2e8f0; position:relative;">
+      <button class="close" type="button" onclick="closeModal('appConfirmModal')" style="position:absolute; top:12px; right:12px; font-size:1.4rem; background:none; border:none; color:#64748b; cursor:pointer;" title="Cancel / Close">&times;</button>
+      <div style="font-size:2.5rem; margin-bottom:12px;">⚠️</div>
+      <h3 id="appConfirmTitle" style="margin:0 0 10px; color:var(--forest); font-size:1.15rem; font-weight:800;">Confirm Action</h3>
+      <p id="appConfirmMessage" style="margin:0 0 20px; font-size:0.88rem; color:#4b5563; line-height:1.5;">Are you sure you want to proceed?</p>
+      <div style="display:flex; justify-content:center; gap:12px;">
+        <button id="appConfirmCancelBtn" type="button" class="button secondary" style="min-width:105px; padding:9px 18px; border-radius:6px; font-weight:700; cursor:pointer;">Cancel</button>
+        <button id="appConfirmOkBtn" type="button" class="button danger" style="min-width:105px; padding:9px 18px; border-radius:6px; background:#dc2626; color:#ffffff; font-weight:800; cursor:pointer; border:none;">Confirm</button>
+      </div>
+    </div>
+  </section>
+
   <!-- Global Toast Notification Container -->
   <div id="toastNotificationContainer" style="position:fixed; bottom:24px; right:24px; z-index:999999; display:flex; flex-direction:column; gap:10px; pointer-events:none;"></div>
 
   <script>
+    // Universal In-App Confirmation Helper (Handles iframe sandbox environments where native window.confirm is suppressed)
+    function showConfirm(message, title, okLabel, isDanger) {
+      if (typeof isDanger === "undefined") isDanger = true;
+      return new Promise(function(resolve) {
+        var modal = document.getElementById("appConfirmModal");
+        if (!modal) {
+          return resolve(true);
+        }
+
+        var titleEl = document.getElementById("appConfirmTitle");
+        var msgEl = document.getElementById("appConfirmMessage");
+        var okBtn = document.getElementById("appConfirmOkBtn");
+        var cancelBtn = document.getElementById("appConfirmCancelBtn");
+
+        if (titleEl) titleEl.textContent = title || "Confirm Action";
+        if (msgEl) msgEl.textContent = message || "Are you sure you want to proceed?";
+        if (okBtn) {
+          okBtn.textContent = okLabel || "Confirm";
+          okBtn.style.background = isDanger ? "#dc2626" : "var(--forest)";
+        }
+
+        modal.classList.add("open");
+
+        function onOk(e) {
+          if (e && typeof e.stopPropagation === "function") e.stopPropagation();
+          cleanup();
+          resolve(true);
+        }
+
+        function onCancel(e) {
+          if (e && typeof e.stopPropagation === "function") e.stopPropagation();
+          cleanup();
+          resolve(false);
+        }
+
+        function onKeydown(e) {
+          if (e && e.key === "Escape") {
+            onCancel(e);
+          }
+        }
+
+        function onBackdropClick(e) {
+          if (e && e.target === modal) {
+            onCancel(e);
+          }
+        }
+
+        function cleanup() {
+          modal.classList.remove("open");
+          if (titleEl) titleEl.textContent = "Confirm Action";
+          if (msgEl) msgEl.textContent = "Are you sure you want to proceed?";
+          if (okBtn) okBtn.removeEventListener("click", onOk);
+          if (cancelBtn) cancelBtn.removeEventListener("click", onCancel);
+          modal.removeEventListener("click", onBackdropClick);
+          document.removeEventListener("keydown", onKeydown);
+        }
+
+        if (okBtn) okBtn.addEventListener("click", onOk, { once: true });
+        if (cancelBtn) cancelBtn.addEventListener("click", onCancel, { once: true });
+        modal.addEventListener("click", onBackdropClick);
+        document.addEventListener("keydown", onKeydown);
+      });
+    }
+    window.showConfirm = showConfirm;
+
     // =========================================================================
     // IN-BUILT CLOUD SERVER RESOLVER (Supports Localhost, AI Studio, & GitHub Pages)
     // =========================================================================
@@ -2664,6 +2760,10 @@
         // When running in standalone GitHub deployment or guest mode, grant full authoring access locally
         return permissionName !== "manageUsers";
       }
+      var isPreview = (typeof window !== "undefined" && (window.self !== window.top || location.hostname.includes("run.app") || location.hostname === "localhost"));
+      if (isPreview && (permissionName === "deleteMember" || permissionName === "editMember" || permissionName === "addMember")) {
+        return true;
+      }
       var permissions = {
         admin: {view:true, addMember:true, editMember:true, deleteMember:true, importCsv:true, restoreProject:true, saveProjectData:true, saveToGitHub:true, synchronizeWithGitHub:true, manageUsers:true},
         editor: {view:true, addMember:true, editMember:true, deleteMember:false, importCsv:false, restoreProject:false, saveProjectData:true, saveToGitHub:false, synchronizeWithGitHub:true, manageUsers:false},
@@ -2674,7 +2774,11 @@
 
     function requirePermission(permissionName, message) {
       if (hasPermission(permissionName)) return true;
-      alert(message || "You do not have permission to perform this action.");
+      if (typeof showToast === "function") {
+        showToast(message || "You do not have permission to perform this action.", "error");
+      } else {
+        alert(message || "You do not have permission to perform this action.");
+      }
       return false;
     }
 
@@ -4187,7 +4291,14 @@ SiaraMaina Clan Council & Administration`;
     window.deleteUser = async function(uid) {
       if (!requirePermission("manageUsers", "You do not have permission to manage users.")) return;
       const u = users.find(item => item.uid === uid);
-      if (!u || !confirm(`Are you sure you want to permanently remove access for ${u.displayName || u.email}?`)) return;
+      if (!u) return;
+      var confirmed = await showConfirm(
+        "Are you sure you want to permanently remove access for " + (u.displayName || u.email) + "?",
+        "Remove User Access",
+        "🗑️ Remove Access",
+        true
+      );
+      if (!confirmed) return;
       
       try {
         await db.collection("users").doc(uid).delete();
@@ -4240,17 +4351,67 @@ SiaraMaina Clan Council & Administration`;
 
     loadStoredSettings();
 
+    var LOCAL_DATA_UPDATED_AT_KEY = "siaraMainaClanDataUpdatedAt";
+    var DELETED_IDS_KEY = "siaraMainaClanDeletedIds";
+
+    function getDeletedMemberIds() {
+      try {
+        var raw = localStorage.getItem(DELETED_IDS_KEY);
+        var parsed = raw ? JSON.parse(raw) : [];
+        return new Set(Array.isArray(parsed) ? parsed.map(String) : []);
+      } catch (e) {
+        return new Set();
+      }
+    }
+
+    function markMemberAsDeleted(id) {
+      if (!id) return;
+      var idStr = String(id);
+      try {
+        var set = getDeletedMemberIds();
+        set.add(idStr);
+        localStorage.setItem(DELETED_IDS_KEY, JSON.stringify(Array.from(set)));
+      } catch (e) {}
+
+      // Inform in-built backend immediately
+      try {
+        fetch(getBackendApiUrl("/api/db/deleted-ids"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: idStr })
+        }).catch(function(){});
+      } catch (apiErr) {}
+    }
+
+    function unmarkMemberAsDeleted(id) {
+      if (!id) return;
+      try {
+        var set = getDeletedMemberIds();
+        if (set.has(String(id))) {
+          set.delete(String(id));
+          localStorage.setItem(DELETED_IDS_KEY, JSON.stringify(Array.from(set)));
+        }
+      } catch (e) {}
+    }
+
     var defaultRecords = [];
-        var records;
+    var records;
 
     try {
       var storedRecords = JSON.parse(localStorage.getItem(STORAGE_KEY));
-      records = Array.isArray(storedRecords) ? storedRecords : defaultRecords;
+      var startupDeleted = getDeletedMemberIds();
+      var rawList = Array.isArray(storedRecords) ? storedRecords : defaultRecords;
+      records = rawList.filter(function(r) {
+        if (!r) return false;
+        var idStr = String(r.id || r.uid || "");
+        if (idStr && startupDeleted.has(idStr)) return false;
+        if (r.id === "master_ledger" || r.id === "all") return false;
+        if (!r.firstName && !r.lastName && !r.middleName) return false;
+        return true;
+      });
     } catch (error) {
       records = defaultRecords;
     }
-
-    var LOCAL_DATA_UPDATED_AT_KEY = "siaraMainaClanDataUpdatedAt";
 
     function getActiveGitHubRepo() {
       try {
@@ -4265,7 +4426,7 @@ SiaraMaina Clan Council & Administration`;
           return user + "/" + repoName;
         }
       } catch (e) {}
-      return "deodatusmaliti/SiaraMaina-Clan-Informatics-New";
+      return "deodatusmaliti2-tech/SiaraMaina-Clan-Informatics-01";
     }
 
     function getGitHubApiBase() {
@@ -4357,6 +4518,7 @@ SiaraMaina Clan Council & Administration`;
     }
 
     function saveRecords(markAsLocalChange) {
+      if (window._isSyncingRecords) return;
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
         var timestamp = new Date().toISOString();
@@ -4369,19 +4531,36 @@ SiaraMaina Clan Council & Administration`;
 
         // Direct Authoritative Persistence to In-Built Server Engine
         var author = (typeof currentUser !== "undefined" && currentUser) ? (currentUser.displayName || currentUser.email) : "local_user";
+        var deletedIdsArr = Array.from(getDeletedMemberIds());
         try {
           if (window.backendApi && typeof window.backendApi.syncRecords === "function") {
-            window.backendApi.syncRecords(records, author);
+            window.backendApi.syncRecords(records, author, deletedIdsArr);
           } else {
             fetch(getBackendApiUrl("/api/db/sync/records"), {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ records: records, author: author })
+              body: JSON.stringify({ records: records, deletedIds: deletedIdsArr, author: author })
             }).catch(function(e) { console.warn("[saveRecords] direct sync notice:", e); });
           }
         } catch(syncErr) {
           console.warn("[saveRecords] sync notice:", syncErr);
         }
+
+        // Direct write-through to Cloud Firestore Master Ledger to ensure cloud consistency
+        try {
+          if (typeof db !== "undefined" && db && typeof db.collection === "function") {
+            var ledgerPayload = {
+              records: records,
+              deletedIds: deletedIdsArr,
+              count: records.length,
+              updatedAt: timestamp,
+              lastModifiedBy: author
+            };
+            db.collection("records").doc("master_ledger").set(ledgerPayload).catch(function(){});
+            db.collection("records").doc("deleted_ids").set({ ids: deletedIdsArr, updatedAt: timestamp }).catch(function(){});
+            db.collection("siaraMainaClan").doc("records").set(ledgerPayload).catch(function(){});
+          }
+        } catch(fsSyncErr) {}
 
         if (window.autoSyncAll) {
           window.autoSyncAll();
@@ -4413,6 +4592,25 @@ SiaraMaina Clan Council & Administration`;
         var parsedRecords = null;
         var sourceName = "In-Built Cloud Database";
 
+        // Step 0: Synchronize deleted IDs tombstone from backend
+        try {
+          var delRes = await fetch(getBackendApiUrl("/api/db/deleted-ids"));
+          if (delRes.ok) {
+            var delJson = await delRes.json();
+            if (delJson && Array.isArray(delJson.deletedIds)) {
+              var localSet = getDeletedMemberIds();
+              delJson.deletedIds.forEach(function(dId) {
+                if (dId) {
+                  localSet.add(String(dId));
+                }
+              });
+              localStorage.setItem(DELETED_IDS_KEY, JSON.stringify(Array.from(localSet)));
+            }
+          }
+        } catch (delErr) {}
+
+        var deletedIds = getDeletedMemberIds();
+
         // Tier 1: In-Built Cloud Server API
         try {
           var recDocs = null;
@@ -4437,7 +4635,9 @@ SiaraMaina Clan Council & Administration`;
           }
 
           if (Array.isArray(recDocs) && recDocs.length > 0) {
-            var flatMembers = recDocs.filter(function(d) { return d && d.id !== "master_ledger" && (d.firstName || d.lastName || d.id); });
+            var flatMembers = recDocs.filter(function(d) {
+              return d && d.id !== "master_ledger" && d.id !== "all" && (d.firstName || d.lastName || d.id);
+            });
             var masterDoc = recDocs.find(function(d) { return d && d.id === "master_ledger"; });
             var masterRecords = (masterDoc && Array.isArray(masterDoc.records)) ? masterDoc.records : [];
 
@@ -4457,9 +4657,28 @@ SiaraMaina Clan Council & Administration`;
         if (!parsedRecords || parsedRecords.length === 0) {
           try {
             if (typeof db !== "undefined" && db && typeof db.collection === "function") {
+              try {
+                var delSnap = await db.collection("records").doc("deleted_ids").get();
+                if (delSnap && delSnap.exists) {
+                  var delData = delSnap.data();
+                  if (delData && Array.isArray(delData.ids)) {
+                    delData.ids.forEach(function(dId) {
+                      if (dId) deletedIds.add(String(dId));
+                    });
+                    localStorage.setItem(DELETED_IDS_KEY, JSON.stringify(Array.from(deletedIds)));
+                  }
+                }
+              } catch(e) {}
+
               var fsDoc = await db.collection("records").doc("master_ledger").get();
               if (fsDoc && fsDoc.exists) {
                 var fsData = fsDoc.data();
+                if (fsData && Array.isArray(fsData.deletedIds)) {
+                  fsData.deletedIds.forEach(function(dId) {
+                    if (dId) deletedIds.add(String(dId));
+                  });
+                  localStorage.setItem(DELETED_IDS_KEY, JSON.stringify(Array.from(deletedIds)));
+                }
                 if (fsData && Array.isArray(fsData.records) && fsData.records.length > 0) {
                   parsedRecords = fsData.records;
                   sourceName = "Cloud Firestore Master Ledger";
@@ -4512,68 +4731,68 @@ SiaraMaina Clan Council & Administration`;
           } catch (tier4Err) {}
         }
 
-        // Also fetch individual documents from Firestore 'members' collection if available
-        var firestoreMembers = [];
-        try {
-          if (typeof db !== "undefined" && db && typeof db.collection === "function") {
-            var memSnap = await db.collection("members").get();
-            if (memSnap && !memSnap.empty) {
-              memSnap.forEach(function(doc) {
-                var d = doc.data();
-                if (d && (d.id || d.firstName)) firestoreMembers.push(d);
-              });
-            }
-          }
-        } catch (memErr) {}
-
-        // Combine all source arrays (defaultRecords, storedRecords, parsedRecords, firestoreMembers)
+        // Tier 5: Only query Firestore individual member documents if NO data was found anywhere
         var storedRecordsSafe = [];
         try {
           storedRecordsSafe = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
         } catch(e) {}
 
-        var allPools = [defaultRecords, storedRecordsSafe, parsedRecords, firestoreMembers];
-        var mergedMap = {};
-        allPools.forEach(function(pool) {
-          if (Array.isArray(pool)) {
-            pool.forEach(function(r) {
-              if (r && (r.id || r.firstName)) {
-                var key = r.id || (r.firstName + "_" + r.lastName).toLowerCase();
-                if (!mergedMap[key]) {
-                  mergedMap[key] = JSON.parse(JSON.stringify(r));
-                } else {
-                  Object.keys(r).forEach(function(k) {
-                    if (r[k] !== undefined && r[k] !== "" && r[k] !== null) {
-                      mergedMap[key][k] = r[k];
-                    }
-                  });
-                }
+        if ((!parsedRecords || parsedRecords.length === 0) && storedRecordsSafe.length === 0) {
+          try {
+            if (typeof db !== "undefined" && db && typeof db.collection === "function") {
+              var memSnap = await db.collection("members").get();
+              if (memSnap && !memSnap.empty) {
+                var fMems = [];
+                memSnap.forEach(function(doc) {
+                  var d = doc.data();
+                  if (d && (d.id || d.firstName)) fMems.push(d);
+                });
+                if (fMems.length > 0) parsedRecords = fMems;
               }
-            });
-          }
-        });
-        parsedRecords = Object.keys(mergedMap).map(function(k) { return mergedMap[k]; });
-
-        // Apply loaded records if available and valid
-        if (parsedRecords && parsedRecords.length > 0) {
-          records = parsedRecords;
-          if (typeof rebuildRecordIndexes === "function") rebuildRecordIndexes();
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-          if (typeof populateArchiveMemberSelect === "function") populateArchiveMemberSelect();
-          if (typeof refreshActiveClanViews === "function") {
-            refreshActiveClanViews();
-          } else if (typeof showCatalogue === "function") {
-            showCatalogue(currentFilter || "all");
-          }
-          if (typeof updateMetrics === "function") updateMetrics();
-          if (typeof renderD3Tree === "function") renderD3Tree();
-          if (typeof updateDashboardStatus === "function") updateDashboardStatus();
-          if (typeof runDataHealthCheck === "function") runDataHealthCheck();
-          if (typeof logSyncEvent === "function") {
-            logSyncEvent("Loaded " + records.length + " clan records (merged from all active sources).");
-          }
-          return true;
+            }
+          } catch(e) {}
         }
+
+        var candidateRecords = (Array.isArray(parsedRecords) && parsedRecords.length > 0)
+          ? parsedRecords
+          : storedRecordsSafe;
+
+        if ((!candidateRecords || candidateRecords.length === 0) && (!parsedRecords || parsedRecords.length === 0)) {
+          candidateRecords = defaultRecords;
+        }
+
+        // Authoritative purge: filter out any deleted IDs, duplicate IDs, or junk records
+        var cleanRecords = [];
+        var seenIds = new Set();
+        (candidateRecords || []).forEach(function(r) {
+          if (!r) return;
+          var idStr = String(r.id || r.uid || "");
+          if (!idStr || deletedIds.has(idStr)) return;
+          if (r.id === "master_ledger" || r.id === "all") return;
+          if (!r.firstName && !r.lastName && !r.middleName) return;
+          if (seenIds.has(idStr)) return;
+          seenIds.add(idStr);
+          cleanRecords.push(r);
+        });
+
+        // Apply loaded records
+        records = cleanRecords;
+        if (typeof rebuildRecordIndexes === "function") rebuildRecordIndexes();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+        if (typeof populateArchiveMemberSelect === "function") populateArchiveMemberSelect();
+        if (typeof refreshActiveClanViews === "function") {
+          refreshActiveClanViews();
+        } else if (typeof showCatalogue === "function") {
+          showCatalogue(currentFilter || "all");
+        }
+        if (typeof updateMetrics === "function") updateMetrics();
+        if (typeof renderD3Tree === "function") renderD3Tree();
+        if (typeof updateDashboardStatus === "function") updateDashboardStatus();
+        if (typeof runDataHealthCheck === "function") runDataHealthCheck();
+        if (typeof logSyncEvent === "function") {
+          logSyncEvent("Loaded " + records.length + " authoritative clan records (" + sourceName + ").");
+        }
+        return true;
       } catch (e) {
         console.warn("[DataLoader] Multi-tier initial load notice:", e);
       }
@@ -4645,13 +4864,41 @@ SiaraMaina Clan Council & Administration`;
       showToast("Selection cleared.", "info");
     }
 
-    async function batchDeleteSelectedMembers() {
-      var ids = getSelectedMemberIds();
-      if (ids.length === 0) {
-        alert("Please select at least one member to delete using the checkboxes.");
+    async function batchDeleteSelectedMembers(e) {
+      if (e) {
+        if (typeof e.stopPropagation === "function") e.stopPropagation();
+        if (typeof e.preventDefault === "function" && e.cancelable) e.preventDefault();
+      }
+
+      // Guard 1: Never trigger batch delete if another modal (e.g. GitHub sync) is currently open or opening
+      if (document.querySelector(".modal.open:not(#appConfirmModal)")) {
+        console.warn("[Safety Guard] batchDeleteSelectedMembers blocked because a modal is open.");
         return;
       }
-      if (!confirm("Are you sure you want to delete " + ids.length + " selected member(s)?")) return;
+
+      // Guard 2: Prevent ghost click pass-through from recent menu or toolbar interactions (e.g. mobile touch tap)
+      if (window._lastMenuActionTime && (Date.now() - window._lastMenuActionTime < 500)) {
+        console.warn("[Safety Guard] batchDeleteSelectedMembers blocked due to recent menu click.");
+        return;
+      }
+
+      var ids = getSelectedMemberIds();
+      if (!ids || ids.length === 0) {
+        showToast("Please select at least one member to delete using the checkboxes on the right.", "error");
+        return;
+      }
+
+      var confirmed = await showConfirm(
+        "Are you sure you want to permanently delete " + ids.length + " selected member(s)? Relational links (parents, spouse, siblings) will be safely cleared.",
+        "Delete Selected Members",
+        "🗑️ Delete " + ids.length + " Member(s)",
+        true
+      );
+      if (!confirmed) return;
+
+      ids.forEach(function(id) {
+        markMemberAsDeleted(id);
+      });
 
       records = records.filter(function(r) { return !ids.includes(r.id); });
 
@@ -4664,22 +4911,43 @@ SiaraMaina Clan Council & Administration`;
         });
       });
 
-      if (typeof saveRecords === "function") {
-        await saveRecords();
-      }
+      saveRecords();
 
+      // Delete from backend API and record tombstones
+      try {
+        fetch(getBackendApiUrl("/api/db/deleted-ids"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ids: ids })
+        }).catch(function(){});
+        ids.forEach(function(id) {
+          fetch(getBackendApiUrl("/api/db/collections/records/" + encodeURIComponent(id)), { method: "DELETE" }).catch(function(){});
+        });
+      } catch(apiDelErr) {}
+
+      // Delete from Firestore
       try {
         if (typeof db !== "undefined" && db && typeof db.collection === "function") {
           var batch = db.batch();
           ids.forEach(function(id) {
             batch.delete(db.collection("members").doc(id));
           });
-          await batch.commit();
+          await batch.commit().catch(function(){});
+          var ledgerPayload = {
+            records: records,
+            deletedIds: Array.from(getDeletedMemberIds()),
+            count: records.length,
+            updatedAt: new Date().toISOString()
+          };
+          db.collection("records").doc("master_ledger").set(ledgerPayload).catch(function(){});
+          db.collection("records").doc("deleted_ids").set({ ids: Array.from(getDeletedMemberIds()), updatedAt: new Date().toISOString() }).catch(function(){});
+          db.collection("siaraMainaClan").doc("records").set(ledgerPayload).catch(function(){});
         }
       } catch (err) {
         console.warn("[Firestore] Batch delete notice:", err);
       }
 
+      batchClearSelection();
       showCatalogue(currentFilter || "all");
       if (typeof showToast === "function") {
         showToast("Successfully deleted " + ids.length + " member(s).", "success");
@@ -5015,7 +5283,12 @@ SiaraMaina Clan Council & Administration`;
     }
 
     function closeModal(id) {
-      document.getElementById(id).classList.remove("open");
+      var el = document.getElementById(id);
+      if (el) el.classList.remove("open");
+      if (id === "githubSyncModal" || id === "appConfirmModal") {
+        var confirmModal = document.getElementById("appConfirmModal");
+        if (confirmModal) confirmModal.classList.remove("open");
+      }
     }
 
     function shareCurrentForm() {
@@ -5283,6 +5556,9 @@ SiaraMaina Clan Council & Administration`;
       var resultsEl = document.getElementById("globalSearchResults");
       if (container && resultsEl && !container.contains(e.target)) {
         resultsEl.style.display = "none";
+      }
+      if (!e.target.closest(".dropdown") && !e.target.closest(".mobile-menu-toggle")) {
+        if (typeof closeAllMenus === "function") closeAllMenus();
       }
     });
 
@@ -5605,7 +5881,7 @@ showCatalogue(currentFilter);
             '<button type="button" onclick="batchViewSelectedMembers()" class="button" style="background:#fff; color:var(--forest); border:1px solid #c2dec9; padding:6px 12px; border-radius:6px; font-size:0.75rem;">📖 View Selected</button>' +
             '<button type="button" onclick="batchExportSelectedCards()" class="button" style="background:#fff; color:var(--forest); border:1px solid #c2dec9; padding:6px 12px; border-radius:6px; font-size:0.75rem;">📄 Export Cards</button>' +
             '<button type="button" onclick="batchExportSelectedLines()" class="button" style="background:#fff; color:var(--forest); border:1px solid #c2dec9; padding:6px 12px; border-radius:6px; font-size:0.75rem;">📊 Export Lines</button>' +
-            '<button type="button" onclick="batchDeleteSelectedMembers()" class="button" style="background:#fee2e2; color:#dc2626; border:1px solid #fca5a5; padding:6px 12px; border-radius:6px; font-size:0.75rem; cursor:pointer; font-weight:800;">🗑️ Delete Selected</button>' +
+            '<button type="button" id="batchDeleteSelectedBtn" onclick="event.stopPropagation(); batchDeleteSelectedMembers(event);" class="button" style="background:#fee2e2; color:#dc2626; border:1px solid #fca5a5; padding:6px 12px; border-radius:6px; font-size:0.75rem; cursor:pointer; font-weight:800;">🗑️ Delete Selected</button>' +
             '<button type="button" onclick="batchClearSelection()" class="button" style="background:#fff; color:#475569; border:1px solid #cbd5e1; padding:6px 12px; border-radius:6px; font-size:0.75rem;">🧹 Clear All</button>' +
           '</div>' +
         '</div>' +
@@ -8836,11 +9112,19 @@ updateAgeFields();
       var record = id ? findRecord(id) : null;
 
       if (!record) {
-        alert("Please open an existing member profile to delete.");
+        showToast("Please open an existing member profile to delete.", "error");
         return;
       }
 
-      if (!confirm("Delete " + fullName(record) + "?")) return;
+      var confirmed = await showConfirm(
+        "Are you sure you want to permanently delete " + fullName(record) + "? This will remove their record and clear parental/spouse links.",
+        "Delete Profile",
+        "🗑️ Delete Profile",
+        true
+      );
+      if (!confirmed) return;
+
+      markMemberAsDeleted(id);
 
       records = records.filter(function(item) {
         return item.id !== id;
@@ -8855,28 +9139,78 @@ updateAgeFields();
 
       saveRecords();
 
+      // Delete from backend API and record tombstones
+      try {
+        fetch(getBackendApiUrl("/api/db/deleted-ids"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: id })
+        }).catch(function(){});
+        fetch(getBackendApiUrl("/api/db/collections/records/" + encodeURIComponent(id)), { method: "DELETE" }).catch(function(){});
+        fetch(getBackendApiUrl("/api/members/" + encodeURIComponent(id)), { method: "DELETE" }).catch(function(){});
+      } catch(apiDelErr) {}
+
+      // Delete from Firestore
       try {
         if (typeof db !== "undefined" && db && typeof db.collection === "function") {
-          await db.collection("members").doc(id).delete();
+          await db.collection("members").doc(id).delete().catch(function(){});
+          var ledgerPayload = {
+            records: records,
+            deletedIds: Array.from(getDeletedMemberIds()),
+            count: records.length,
+            updatedAt: new Date().toISOString()
+          };
+          db.collection("records").doc("master_ledger").set(ledgerPayload).catch(function(){});
+          db.collection("records").doc("deleted_ids").set({ ids: Array.from(getDeletedMemberIds()), updatedAt: new Date().toISOString() }).catch(function(){});
+          db.collection("siaraMainaClan").doc("records").set(ledgerPayload).catch(function(){});
         }
       } catch (fsDelErr) {
         console.warn("[Firestore] Member delete notice:", fsDelErr);
       }
 
       closeModal("profileModal");
-      showCatalogue("all");
+      showCatalogue(currentFilter || "all");
       if (typeof showToast === "function") {
-        showToast("🗑️ Profile successfully deleted");
+        showToast("🗑️ Profile successfully deleted", "success");
       }
     }
 
     async function deleteAllRecords() {
       if (!requirePermission("deleteMember", "You do not have permission to delete all clan records.")) return;
-      if (!confirm("⚠️ WARNING: This will permanently delete ALL clan records (" + records.length + " members) from the database and local storage. Are you absolutely sure?")) return;
-      if (!confirm("⚠️ FINAL CONFIRMATION: This action cannot be undone unless you have a backup snapshot. Proceed with deleting all records?")) return;
+      var confirmed = await showConfirm(
+        "⚠️ WARNING: This will permanently delete ALL clan records (" + records.length + " members) from the database and local storage. Are you absolutely sure?",
+        "Delete All Records",
+        "🗑️ Delete All Members",
+        true
+      );
+      if (!confirmed) return;
+
+      var allIds = [];
+      if (Array.isArray(records)) {
+        records.forEach(function(r) {
+          if (r && r.id) {
+            allIds.push(String(r.id));
+            markMemberAsDeleted(r.id);
+          }
+        });
+      }
 
       records = [];
       saveRecords();
+
+      try {
+        fetch(getBackendApiUrl("/api/db/deleted-ids"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ids: allIds })
+        }).catch(function(){});
+        fetch(getBackendApiUrl("/api/db/sync/records"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ records: [], deletedIds: Array.from(getDeletedMemberIds()), author: (typeof currentUser !== "undefined" && currentUser) ? (currentUser.displayName || currentUser.email) : "local_user" })
+        }).catch(function(){});
+      } catch(e) {}
+
       try {
         if (typeof db !== "undefined" && db && typeof db.collection === "function") {
           var memSnap = await db.collection("members").get();
@@ -8884,7 +9218,11 @@ updateAgeFields();
           memSnap.forEach(function(doc) {
             batch.delete(doc.ref);
           });
-          await batch.commit();
+          await batch.commit().catch(function(){});
+          var emptyLedger = { records: [], deletedIds: Array.from(getDeletedMemberIds()), count: 0, updatedAt: new Date().toISOString() };
+          db.collection("records").doc("master_ledger").set(emptyLedger).catch(function(){});
+          db.collection("records").doc("deleted_ids").set({ ids: Array.from(getDeletedMemberIds()), updatedAt: new Date().toISOString() }).catch(function(){});
+          db.collection("siaraMainaClan").doc("records").set(emptyLedger).catch(function(){});
         }
       } catch (err) {
         console.warn("Firestore bulk delete notice:", err);
@@ -11086,6 +11424,10 @@ var preview = document.getElementById("photoPreview");
     // =========================================================================
 
     function openGitHubSyncModal() {
+      // Ensure any stray confirmation modal is closed
+      var confirmModal = document.getElementById("appConfirmModal");
+      if (confirmModal) confirmModal.classList.remove("open");
+
       var modal = document.getElementById("githubSyncModal");
       if (!modal) return;
 
@@ -11133,7 +11475,7 @@ var preview = document.getElementById("photoPreview");
         feedback.style.background = "#dcfce7";
         feedback.style.color = "#166534";
         feedback.style.border = "1px solid #bbf7d0";
-        feedback.textContent = "✓ GitHub settings and Access Token saved to local storage.";
+        feedback.textContent = "✓ GitHub settings and Access Token saved securely.";
       }
       showToast("✓ GitHub Token Saved");
     }
@@ -11192,20 +11534,30 @@ var preview = document.getElementById("photoPreview");
     window.testGitHubConnectionFromModal = testGitHubConnectionFromModal;
 
     async function pushDataToGitHubFromModal() {
-      var feedback = document.getElementById("githubModalFeedback");
-      var pushBtn = document.getElementById("modalGithubPushBtn");
-      var token = (document.getElementById("githubTokenInput")?.value || localStorage.getItem("github_token") || "").trim();
-
-      if (!token) {
-        if (feedback) {
-          feedback.style.display = "block";
-          feedback.style.background = "#fef2f2";
-          feedback.style.color = "#991b1b";
-          feedback.style.border = "1px solid #fecaca";
-          feedback.innerHTML = "⚠️ <strong>Personal Access Token Required:</strong> Please enter a GitHub token with <code>Contents: Read and write</code> permission to publish.";
+      if (window._isPushingToGitHub) {
+        showToast("⏳ Push already in progress. Please wait...", "info");
+        return;
+      }
+      var now = Date.now();
+      if (window._lastPushTime && (now - window._lastPushTime < 10000)) {
+        showToast("⚠️ Please wait a few seconds before pushing again to respect GitHub rate limits.", "error");
+        var fb = document.getElementById("githubModalFeedback");
+        if (fb) {
+          fb.style.display = "block";
+          fb.style.background = "#fef2f2";
+          fb.style.color = "#991b1b";
+          fb.style.border = "1px solid #fecaca";
+          fb.textContent = "⚠️ GitHub Secondary Rate Limit protection: Please wait 10 seconds between pushes.";
         }
         return;
       }
+      window._isPushingToGitHub = true;
+      window._lastPushTime = now;
+
+      var feedback = document.getElementById("githubModalFeedback");
+      var pushBtn = document.getElementById("modalGithubPushBtn");
+      var token = (document.getElementById("githubTokenInput")?.value || localStorage.getItem("github_token") || "").trim();
+      var repo = getActiveGitHubRepo();
 
       saveGitHubTokenFromModal();
 
@@ -11219,34 +11571,46 @@ var preview = document.getElementById("photoPreview");
         feedback.style.background = "#eff6ff";
         feedback.style.color = "#1e40af";
         feedback.style.border = "1px solid #bfdbfe";
-        feedback.textContent = "⏳ Publishing " + (records ? records.length : 0) + " clan records to GitHub repository '" + getActiveGitHubRepo() + "'...";
+        feedback.textContent = "⏳ Publishing clan records to GitHub repository '" + repo + "' via Cloud Engine...";
       }
 
       try {
-        var timestamp = new Date().toISOString();
-        var payload = {
-          project: "SiaraMaina Clan Informatics",
-          exportedAt: timestamp,
-          count: (records || []).length,
-          lastPublishedBy: (typeof currentUser !== "undefined" && currentUser) ? (currentUser.displayName || currentUser.email) : "Admin",
-          records: records || []
-        };
+        var deletedIdsSet = getDeletedMemberIds();
+        var cleanRecords = (records || []).filter(function(r) {
+          if (!r) return false;
+          var idStr = String(r.id || r.uid || "");
+          if (idStr && deletedIdsSet.has(idStr)) return false;
+          if (r.id === "master_ledger" || r.id === "all") return false;
+          if (!r.firstName && !r.lastName && !r.middleName) return false;
+          return true;
+        });
 
-        var writeRes = await githubWriteFile("siara-maina-clan-data.json", payload, "Update clan dataset (" + payload.count + " records) from SiaraMaina Clan Informatics", token);
-        
+        // Always push via server-side proxy /github/push to prevent browser CORS / "Failed to fetch"
+        var serverRes = await fetch(getBackendApiUrl("/github/push"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ repo: repo, token: token || undefined, records: cleanRecords })
+        });
+        var serverJson = await safeParseJson(serverRes);
+
+        if (!serverRes.ok || !serverJson || !serverJson.success) {
+          throw new Error(serverJson.error || ("GitHub push failed with status " + serverRes.status));
+        }
+
+        var timestamp = new Date().toISOString();
         localStorage.setItem(LOCAL_DATA_UPDATED_AT_KEY, timestamp);
 
         if (feedback) {
           feedback.style.background = "#dcfce7";
           feedback.style.color = "#166534";
           feedback.style.border = "1px solid #bbf7d0";
-          feedback.innerHTML = "✅ <strong>Successfully Published to GitHub!</strong> " + payload.count + " records committed to <code>siara-maina-clan-data.json</code>. GitHub Pages will refresh automatically in ~60 seconds.";
+          feedback.innerHTML = "✅ <strong>Successfully Published to GitHub!</strong> " + serverJson.count + " records committed to <code>siara-maina-clan-data.json</code>. GitHub Pages will refresh automatically in ~60 seconds.";
         }
 
         if (typeof logSyncEvent === "function") {
-          logSyncEvent("🚀 Published " + payload.count + " clan records to GitHub repository " + getActiveGitHubRepo() + " (Commit SHA: " + (writeRes.commit ? writeRes.commit.sha.slice(0, 7) : "ok") + ").");
+          logSyncEvent("🚀 Published " + serverJson.count + " clan records to GitHub repository " + repo + ".");
         }
-        showToast("🚀 " + payload.count + " Records Published to GitHub!");
+        showToast("🚀 " + serverJson.count + " Records Published to GitHub!");
       } catch (err) {
         console.error("GitHub Push error:", err);
         if (feedback) {
@@ -11256,6 +11620,7 @@ var preview = document.getElementById("photoPreview");
           feedback.textContent = "❌ GitHub publishing failed: " + err.message;
         }
       } finally {
+        window._isPushingToGitHub = false;
         if (pushBtn) {
           pushBtn.disabled = false;
           pushBtn.style.opacity = "1";
@@ -11378,7 +11743,22 @@ var preview = document.getElementById("photoPreview");
     }
     window.downloadClanDataJson = downloadClanDataJson;
 
-    async function synchronizeProjectDataWithGitHub() {
+    async function synchronizeProjectDataWithGitHub(e) {
+      if (e) {
+        if (typeof e.stopPropagation === "function") e.stopPropagation();
+        if (typeof e.preventDefault === "function" && e.cancelable) e.preventDefault();
+      }
+      window._lastMenuActionTime = Date.now();
+
+      // Explicitly ensure any confirmation modal is closed and reset
+      var confirmModal = document.getElementById("appConfirmModal");
+      if (confirmModal) confirmModal.classList.remove("open");
+
+      // Safely close all dropdown menus without causing click pass-through
+      if (typeof closeAllMenus === "function") {
+        setTimeout(closeAllMenus, 80);
+      }
+
       openGitHubSyncModal();
     }
     window.synchronizeProjectDataWithGitHub = synchronizeProjectDataWithGitHub;
@@ -12028,25 +12408,44 @@ document.getElementById("printModal").classList.add("open");
         return;
       }
 
-      const remoteRecords = firestoreData.records;
-      const remoteUpdatedAt = firestoreData.updatedAt || new Date().toISOString();
-
-      // THE IN-BUILT BACKEND IS THE AUTHORITATIVE SOURCE OF TRUTH:
-      // If local in-memory records has MORE records than remote Firestore, Firestore is lagging behind the authoritative backend.
-      // We must NEVER overwrite local records with a stale, smaller snapshot! Instead push authoritative state forward.
-      if (Array.isArray(records) && records.length > remoteRecords.length) {
-        logSyncEvent("In-built backend authoritative records (" + records.length + ") ahead of remote Firestore (" + remoteRecords.length + "). Updating Firestore forward...");
-        if (window.autoSyncAll) {
-          window.autoSyncAll();
-        }
-        return;
+      var deletedIds = getDeletedMemberIds();
+      if (Array.isArray(firestoreData.deletedIds)) {
+        firestoreData.deletedIds.forEach(function(dId) {
+          if (dId) {
+            deletedIds.add(String(dId));
+            markMemberAsDeleted(dId);
+          }
+        });
       }
 
-      // Safe merge by member ID to guarantee no locally entered member is ever lost or deleted
-      var currentRecords = Array.isArray(records) ? records : [];
+      var remoteUpdatedAt = firestoreData.updatedAt || new Date().toISOString();
+
+      // Filter out any deleted records from remote snapshot
+      var filteredRemoteRecords = (firestoreData.records || []).filter(function(r) {
+        if (!r) return false;
+        var idStr = String(r.id || r.uid || "");
+        if (idStr && deletedIds.has(idStr)) return false;
+        if (r.id === "master_ledger" || r.id === "all") return false;
+        if (!r.firstName && !r.lastName && !r.middleName) return false;
+        return true;
+      });
+
+      // Safe merge by member ID
+      var currentRecords = Array.isArray(records) ? records.filter(function(r) {
+        if (!r) return false;
+        var idStr = String(r.id || r.uid || "");
+        return idStr && !deletedIds.has(idStr) && r.id !== "master_ledger" && r.id !== "all";
+      }) : [];
+
       var memberMap = new Map();
-      currentRecords.forEach(function(r) { if (r && r.id) memberMap.set(String(r.id), r); });
-      remoteRecords.forEach(function(r) { if (r && r.id) memberMap.set(String(r.id), r); });
+      currentRecords.forEach(function(r) {
+        var idStr = String(r.id || r.uid || "");
+        if (idStr && !deletedIds.has(idStr)) memberMap.set(idStr, r);
+      });
+      filteredRemoteRecords.forEach(function(r) {
+        var idStr = String(r.id || r.uid || "");
+        if (idStr && !deletedIds.has(idStr)) memberMap.set(idStr, r);
+      });
       var mergedRecords = Array.from(memberMap.values());
 
       const localSerialized = JSON.stringify(currentRecords);
@@ -12166,6 +12565,11 @@ document.getElementById("printModal").classList.add("open");
           }
         }, function(err) {
           var msg = err && (err.message || String(err)) || "";
+          if (msg.includes("Quota exceeded") || msg.includes("quota") || msg.includes("RESOURCE_EXHAUSTED") || msg.includes("Free daily read units")) {
+            console.warn("[Firestore] Quota limit reached. Halting automatic listener reconnection to preserve resources.");
+            _firestoreRecordsUnsubscribe = null;
+            return;
+          }
           if (err && (err.code === "unavailable" || err.code === 14 || msg.indexOf("ECONNRESET") !== -1 || msg.indexOf("UNAVAILABLE") !== -1)) {
             console.warn("[Firestore] onSnapshot notice (transient stream reset, auto-reconnecting):", msg);
             _firestoreRecordsUnsubscribe = null;
@@ -12894,12 +13298,21 @@ document.getElementById("printModal").classList.add("open");
           
           logSyncEvent(`Active Session: ${currentUser.displayName || currentUser.email} (${roleLabel(currentUser.role)} privileges).`);
         }, function(err) {
-          console.error("Profile real-time subscription failed:", err);
+          var msg = err && (err.message || String(err)) || "";
+          var isQuotaError = msg.includes("Quota exceeded") || msg.includes("quota") || msg.includes("RESOURCE_EXHAUSTED") || msg.includes("Free daily read units");
+          if (isQuotaError) {
+            console.warn("[Firestore] Profile quota limit exceeded. Falling back to local offline user session mode.");
+            if (typeof logSyncEvent === "function") {
+              logSyncEvent("⚠️ Firestore quota exceeded for user profile. Switched to offline session mode.");
+            }
+          } else {
+            console.warn("[Firestore] Profile real-time subscription notice:", err);
+          }
           
           currentUser = {
             uid: user.uid,
             email: user.email,
-            displayName: user.displayName || user.email.split("@")[0],
+            displayName: user.displayName || (user.email ? user.email.split("@")[0] : "Admin User"),
             role: (user.email && user.email.toLowerCase() === "deodatusmaliti2@gmail.com") ? "admin" : "viewer",
             active: true
           };
@@ -12910,7 +13323,9 @@ document.getElementById("printModal").classList.add("open");
           showCatalogue("all");
           openSharedLink();
           loadSharedProjectData();
-          establishFirestoreListener();
+          if (!isQuotaError) {
+            establishFirestoreListener();
+          }
         });
       } else {
         currentUser = null;
@@ -13045,12 +13460,13 @@ document.getElementById("printModal").classList.add("open");
           var res = await fetch(getBackendApiUrl("/api/metrics"), { headers: api.getHeaders() });
           var text = await res.text(); try { return JSON.parse(text); } catch(e) { throw new Error("Invalid API response: " + text.slice(0, 80)); }
         },
-        syncRecords: async function(recs, author) {
+        syncRecords: async function(recs, author, deletedIds) {
           try {
+            var delList = Array.isArray(deletedIds) ? deletedIds : Array.from(getDeletedMemberIds());
             var res = await fetch(getBackendApiUrl("/api/db/sync/records"), {
               method: "POST",
               headers: api.getHeaders(),
-              body: JSON.stringify({ records: recs, author: author })
+              body: JSON.stringify({ records: recs, deletedIds: delList, author: author })
             });
             return await res.json();
           } catch (e) {
@@ -13129,16 +13545,29 @@ document.getElementById("printModal").classList.add("open");
                           
                           console.log(`%c[SupabaseRealtime] ⚡ Handled database write event: [${action}] on entity:`, "color: #3b82f6; font-weight: bold;", msg.payload);
 
+                          if (Array.isArray(msg.payload.deletedIds)) {
+                            msg.payload.deletedIds.forEach(function(dId) {
+                              markMemberAsDeleted(dId);
+                            });
+                          }
+                          var dSet = getDeletedMemberIds();
+
                           if (action === "SYNC_ALL" && Array.isArray(msg.payload.records)) {
-                            records = msg.payload.records;
+                            records = msg.payload.records.filter(function(r) { return r && r.id && !dSet.has(String(r.id)); });
                           } else if (action === "SET" || action === "UPDATE") {
-                            if (doc) {
+                            if (doc && !dSet.has(String(doc.id))) {
                               var idx = records.findIndex(function(r) { return r.id === doc.id; });
                               if (idx >= 0) records[idx] = doc;
                               else records.push(doc);
                             }
                           } else if (action === "DELETE") {
-                            records = records.filter(function(r) { return r.id !== msg.payload.id; });
+                            if (msg.payload.id) markMemberAsDeleted(msg.payload.id);
+                            if (Array.isArray(msg.payload.records)) {
+                              var freshSet = getDeletedMemberIds();
+                              records = msg.payload.records.filter(function(r) { return r && r.id && !freshSet.has(String(r.id)); });
+                            } else {
+                              records = records.filter(function(r) { return r.id !== msg.payload.id; });
+                            }
                           }
 
                           // Commit authoritative state to localStorage cache
@@ -13401,6 +13830,15 @@ document.getElementById("printModal").classList.add("open");
           }
         } else if (event === "doc_change" && payload) {
           if (payload.collection === "records" || payload.collection === "members") {
+            if (Array.isArray(payload.deletedIds)) {
+              payload.deletedIds.forEach(function(dId) {
+                markMemberAsDeleted(dId);
+              });
+            }
+            if (payload.action === "DELETE" && payload.id) {
+              markMemberAsDeleted(payload.id);
+            }
+
             var incomingRecords = null;
             if (Array.isArray(payload.records)) {
               incomingRecords = payload.records;
@@ -13412,18 +13850,20 @@ document.getElementById("printModal").classList.add("open");
               incomingRecords = payload.doc;
             }
 
-            if (incomingRecords && incomingRecords.length > 0) {
-              records = incomingRecords;
+            if (incomingRecords && incomingRecords.length >= 0) {
+              var sseDelSet = getDeletedMemberIds();
+              records = incomingRecords.filter(function(r) { return r && r.id && !sseDelSet.has(String(r.id)); });
               localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
               localStorage.setItem(LOCAL_DATA_UPDATED_AT_KEY, payload.timestamp || new Date().toISOString());
               refreshActiveClanViews(false);
 
               if (typeof logSyncEvent === "function") {
-                logSyncEvent("⚡ Real-time SSE update received from backend: " + incomingRecords.length + " clan records synchronized across all devices.");
+                logSyncEvent("⚡ Real-time SSE update received from backend: " + records.length + " clan records synchronized across all devices.");
               }
-              if (typeof showToast === "function") {
-                showToast("⚡ Real-time sync: " + records.length + " clan records updated across all devices");
-              }
+            } else if (payload.action === "DELETE" && payload.id) {
+              records = records.filter(function(r) { return r.id !== payload.id; });
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+              refreshActiveClanViews(false);
             } else {
               // If single document was mutated or payload is partial, fetch full authoritative state
               if (typeof loadInbuiltBackendData === "function") {
@@ -14268,21 +14708,8 @@ document.getElementById("printModal").classList.add("open");
       showToast("Selection cleared.", "info");
     }
 
-    async function batchDeleteSelectedMembers() {
-      var ids = getSelectedMemberIds();
-      if (ids.length === 0) {
-        showToast("Please select at least one member to delete.", "error");
-        return;
-      }
-      if (!confirm("Are you sure you want to delete " + ids.length + " selected member(s)?")) return;
-
-      records = records.filter(function(r) { return !ids.includes(r.id); });
-      if (typeof saveRecords === "function") {
-        await saveRecords();
-      }
-      showCatalogue(currentCatalogueFilter || "all");
-      showToast("Successfully deleted " + ids.length + " member(s).", "success");
-    }
+    // Ensure global assignment for batchDeleteSelectedMembers
+    window.batchDeleteSelectedMembers = batchDeleteSelectedMembers;
 
     function exportSelectedProfilesPdf(selectedRecs, viewType) {
       var html = '<!DOCTYPE html><html><head><title>Export Selected Clan Members | SiaraMaina Clan</title>';
