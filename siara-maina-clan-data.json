@@ -1,9 +1,243 @@
 {
   "project": "SiaraMaina Clan Informatics",
-  "exportedAt": "2026-10-04T09:18:21.891Z",
-  "count": 100,
+  "exportedAt": "2026-10-04T10:25:08.161Z",
+  "count": 99,
   "lastPublishedBy": "Deodatus Maliti",
   "records": [
+    {
+      "id": "2",
+      "firstName": "DEODATUS",
+      "middleName": "",
+      "lastName": "MALITI1",
+      "sex": "Male",
+      "branchType": "heritage",
+      "honorific": "",
+      "dob": "",
+      "birthPeriod": "",
+      "placeOfBirth": "",
+      "deceased": false,
+      "dod": "",
+      "deathAge": "",
+      "causeOfDeath": "Not Recorded",
+      "fatherId": "",
+      "motherId": "",
+      "spouseId": "",
+      "siblingIds": [],
+      "maritalStatus": "Not Recorded",
+      "education": "Not Recorded",
+      "course": "",
+      "employment": "Not Recorded",
+      "occupation": "",
+      "organization": "ResearchLink International",
+      "religion": "Not Recorded",
+      "denomination": "",
+      "phone": "0686997270",
+      "whatsapp": "",
+      "email": "deodatusmaliti2@gmail.com",
+      "location": "",
+      "narrative": "",
+      "photo": ""
+    },
+    {
+      "id": "3",
+      "clanMemberNumber": "Assigned when saved",
+      "firstName": "AUTOCOMPLETE",
+      "middleName": null,
+      "lastName": "",
+      "sex": "Male",
+      "branchType": "heritage",
+      "honorific": null,
+      "dob": null,
+      "placeOfBirth": null,
+      "birthPeriod": null,
+      "deceased": false,
+      "dod": null,
+      "ageCategory": "Historical / Unknown",
+      "deathAge": null,
+      "causeOfDeath": "Not Recorded",
+      "fatherId": null,
+      "motherId": null,
+      "spouseId": null,
+      "siblingIds": [],
+      "maritalStatus": "Not Recorded",
+      "education": "Not Recorded",
+      "course": null,
+      "employment": "Not Recorded",
+      "occupation": null,
+      "organization": null,
+      "religion": "Not Recorded",
+      "denomination": null,
+      "phone": null,
+      "whatsapp": null,
+      "email": null,
+      "location": null,
+      "photoFile": null,
+      "narrative": null,
+      "recordId": null,
+      "storedPhoto": null,
+      "created_at": "2026-10-01 18:06:44",
+      "updated_at": "2026-10-01 18:06:44"
+    },
+    {
+      "id": "4",
+      "clanMemberNumber": "Assigned when saved",
+      "firstName": "check",
+      "middleName": null,
+      "lastName": "",
+      "sex": "Male",
+      "branchType": "heritage",
+      "honorific": null,
+      "dob": null,
+      "placeOfBirth": null,
+      "birthPeriod": null,
+      "deceased": false,
+      "dod": null,
+      "ageCategory": "Historical / Unknown",
+      "deathAge": null,
+      "causeOfDeath": "Not Recorded",
+      "fatherId": null,
+      "motherId": null,
+      "spouseId": null,
+      "siblingIds": [],
+      "maritalStatus": "Not Recorded",
+      "education": "Not Recorded",
+      "course": null,
+      "employment": "Not Recorded",
+      "occupation": null,
+      "organization": null,
+      "religion": "Not Recorded",
+      "denomination": null,
+      "phone": null,
+      "whatsapp": null,
+      "email": null,
+      "location": null,
+      "photoFile": null,
+      "narrative": null,
+      "recordId": null,
+      "storedPhoto": null,
+      "created_at": "2026-10-01 18:28:32",
+      "updated_at": "2026-10-01 18:28:32"
+    },
+    {
+      "id": "5",
+      "clanMemberNumber": "Assigned when saved",
+      "firstName": "Researchlink",
+      "middleName": null,
+      "lastName": "International",
+      "sex": "Male",
+      "branchType": "heritage",
+      "honorific": null,
+      "dob": null,
+      "placeOfBirth": null,
+      "birthPeriod": null,
+      "deceased": false,
+      "dod": null,
+      "ageCategory": "Historical / Unknown",
+      "deathAge": null,
+      "causeOfDeath": "Not Recorded",
+      "fatherId": null,
+      "motherId": null,
+      "spouseId": null,
+      "siblingIds": [],
+      "maritalStatus": "Not Recorded",
+      "education": "Not Recorded",
+      "course": null,
+      "employment": "Not Recorded",
+      "occupation": null,
+      "organization": "ResearchLink International",
+      "religion": "Not Recorded",
+      "denomination": null,
+      "phone": null,
+      "whatsapp": null,
+      "email": null,
+      "location": null,
+      "photoFile": null,
+      "narrative": null,
+      "recordId": null,
+      "storedPhoto": null,
+      "created_at": "2026-10-01 19:17:57",
+      "updated_at": "2026-10-01 19:17:57"
+    },
+    {
+      "id": "94",
+      "clanMemberNumber": "Assigned when saved",
+      "firstName": "LATEST",
+      "middleName": null,
+      "lastName": "",
+      "sex": "Male",
+      "branchType": "heritage",
+      "honorific": null,
+      "dob": null,
+      "placeOfBirth": null,
+      "birthPeriod": null,
+      "deceased": false,
+      "dod": null,
+      "ageCategory": "Historical / Unknown",
+      "deathAge": null,
+      "causeOfDeath": "Not Recorded",
+      "fatherId": null,
+      "motherId": null,
+      "spouseId": null,
+      "siblingIds": [],
+      "maritalStatus": "Not Recorded",
+      "education": "Not Recorded",
+      "course": null,
+      "employment": "Not Recorded",
+      "occupation": null,
+      "organization": null,
+      "religion": "Not Recorded",
+      "denomination": null,
+      "phone": null,
+      "whatsapp": null,
+      "email": null,
+      "location": null,
+      "photoFile": null,
+      "narrative": null,
+      "recordId": null,
+      "storedPhoto": null,
+      "created_at": "2026-10-01 20:00:30",
+      "updated_at": "2026-10-01 20:00:30"
+    },
+    {
+      "id": "95",
+      "clanMemberNumber": "Assigned when saved",
+      "firstName": "MORNING ",
+      "middleName": null,
+      "lastName": "",
+      "sex": "Male",
+      "branchType": "heritage",
+      "honorific": null,
+      "dob": null,
+      "placeOfBirth": null,
+      "birthPeriod": null,
+      "deceased": false,
+      "dod": null,
+      "ageCategory": "Historical / Unknown",
+      "deathAge": null,
+      "causeOfDeath": "Not Recorded",
+      "fatherId": null,
+      "motherId": null,
+      "spouseId": null,
+      "siblingIds": [],
+      "maritalStatus": "Not Recorded",
+      "education": "Not Recorded",
+      "course": null,
+      "employment": "Not Recorded",
+      "occupation": null,
+      "organization": "ResearchLink International",
+      "religion": "Not Recorded",
+      "denomination": null,
+      "phone": "0686997270",
+      "whatsapp": null,
+      "email": "deodatusmaliti2@gmail.com",
+      "location": null,
+      "photoFile": null,
+      "narrative": null,
+      "recordId": "95",
+      "storedPhoto": null,
+      "created_at": "2026-10-01 16:25:05",
+      "updated_at": "2026-10-04 09:27:18"
+    },
     {
       "id": "perm_member_1790679657524",
       "clanMemberNumber": null,
@@ -24,7 +258,7 @@
       "fatherId": null,
       "motherId": null,
       "spouseId": null,
-      "siblingIds": null,
+      "siblingIds": [],
       "maritalStatus": null,
       "education": null,
       "course": null,
@@ -42,7 +276,7 @@
       "recordId": "perm_member_1790679657524",
       "storedPhoto": null,
       "created_at": "2026-10-04 08:18:21",
-      "updated_at": "2026-10-04 09:18:14"
+      "updated_at": "2026-10-04 09:19:00"
     },
     {
       "id": "member-1790678463224",
@@ -82,7 +316,7 @@
       "recordId": "member-1790678463224",
       "storedPhoto": null,
       "created_at": "2026-10-04 08:18:20",
-      "updated_at": "2026-10-04 09:18:13"
+      "updated_at": "2026-10-04 09:26:39"
     },
     {
       "id": "member-1790678604095",
@@ -122,7 +356,7 @@
       "recordId": "member-1790678604095",
       "storedPhoto": null,
       "created_at": "2026-10-04 08:18:20",
-      "updated_at": "2026-10-04 09:18:14"
+      "updated_at": "2026-10-04 09:26:39"
     },
     {
       "id": "member-1790677808124",
@@ -162,7 +396,7 @@
       "recordId": "member-1790677808124",
       "storedPhoto": null,
       "created_at": "2026-10-04 08:18:19",
-      "updated_at": "2026-10-04 09:18:13"
+      "updated_at": "2026-10-04 09:26:40"
     },
     {
       "id": "member-1790678391462",
@@ -202,87 +436,7 @@
       "recordId": "member-1790678391462",
       "storedPhoto": null,
       "created_at": "2026-10-04 08:18:19",
-      "updated_at": "2026-10-04 09:18:13"
-    },
-    {
-      "id": "95",
-      "clanMemberNumber": "Assigned when saved",
-      "firstName": "MORNING ",
-      "middleName": null,
-      "lastName": "",
-      "sex": "Male",
-      "branchType": "heritage",
-      "honorific": null,
-      "dob": null,
-      "placeOfBirth": null,
-      "birthPeriod": null,
-      "deceased": false,
-      "dod": null,
-      "ageCategory": "Historical / Unknown",
-      "deathAge": null,
-      "causeOfDeath": "Not Recorded",
-      "fatherId": null,
-      "motherId": null,
-      "spouseId": null,
-      "siblingIds": null,
-      "maritalStatus": "Not Recorded",
-      "education": "Not Recorded",
-      "course": null,
-      "employment": "Not Recorded",
-      "occupation": null,
-      "organization": null,
-      "religion": "Not Recorded",
-      "denomination": null,
-      "phone": null,
-      "whatsapp": null,
-      "email": null,
-      "location": null,
-      "photoFile": null,
-      "narrative": null,
-      "recordId": null,
-      "storedPhoto": null,
-      "created_at": "2026-10-02 02:27:11",
-      "updated_at": "2026-10-02 02:27:11"
-    },
-    {
-      "id": "94",
-      "clanMemberNumber": "Assigned when saved",
-      "firstName": "LATEST",
-      "middleName": null,
-      "lastName": "",
-      "sex": "Male",
-      "branchType": "heritage",
-      "honorific": null,
-      "dob": null,
-      "placeOfBirth": null,
-      "birthPeriod": null,
-      "deceased": false,
-      "dod": null,
-      "ageCategory": "Historical / Unknown",
-      "deathAge": null,
-      "causeOfDeath": "Not Recorded",
-      "fatherId": null,
-      "motherId": null,
-      "spouseId": null,
-      "siblingIds": null,
-      "maritalStatus": "Not Recorded",
-      "education": "Not Recorded",
-      "course": null,
-      "employment": "Not Recorded",
-      "occupation": null,
-      "organization": null,
-      "religion": "Not Recorded",
-      "denomination": null,
-      "phone": null,
-      "whatsapp": null,
-      "email": null,
-      "location": null,
-      "photoFile": null,
-      "narrative": null,
-      "recordId": null,
-      "storedPhoto": null,
-      "created_at": "2026-10-01 20:00:30",
-      "updated_at": "2026-10-01 20:00:30"
+      "updated_at": "2026-10-04 09:26:40"
     },
     {
       "id": "member-1790750409664",
@@ -322,7 +476,7 @@
       "recordId": "member-1790750409664",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:49:11",
-      "updated_at": "2026-10-04 09:17:38"
+      "updated_at": "2026-10-04 09:26:41"
     },
     {
       "id": "member-1790755353640",
@@ -362,7 +516,7 @@
       "recordId": "member-1790755353640",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:49:11",
-      "updated_at": "2026-10-04 09:17:39"
+      "updated_at": "2026-10-04 09:26:42"
     },
     {
       "id": "member-1790762749605",
@@ -402,7 +556,7 @@
       "recordId": "member-1790762749605",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:49:11",
-      "updated_at": "2026-10-04 09:17:39"
+      "updated_at": "2026-10-04 09:26:42"
     },
     {
       "id": "member-1790691244907",
@@ -442,7 +596,7 @@
       "recordId": "member-1790691244907",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:49",
-      "updated_at": "2026-10-04 09:17:39"
+      "updated_at": "2026-10-04 09:26:43"
     },
     {
       "id": "member-1790693000001",
@@ -482,7 +636,7 @@
       "recordId": "member-1790693000001",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:49",
-      "updated_at": "2026-10-04 09:17:40"
+      "updated_at": "2026-10-04 09:26:43"
     },
     {
       "id": "member-1790693000002",
@@ -522,7 +676,7 @@
       "recordId": "member-1790693000002",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:49",
-      "updated_at": "2026-10-04 09:17:40"
+      "updated_at": "2026-10-04 09:26:43"
     },
     {
       "id": "member-1788707065191-cv0pi8",
@@ -562,7 +716,7 @@
       "recordId": "member-1788707065191-cv0pi8",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:48",
-      "updated_at": "2026-10-04 09:17:41"
+      "updated_at": "2026-10-04 09:26:44"
     },
     {
       "id": "member-1788707065191-fr54m9",
@@ -602,7 +756,7 @@
       "recordId": "member-1788707065191-fr54m9",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:48",
-      "updated_at": "2026-10-04 09:17:41"
+      "updated_at": "2026-10-04 09:26:44"
     },
     {
       "id": "member-1788707065191-ldo7aa",
@@ -642,7 +796,7 @@
       "recordId": "member-1788707065191-ldo7aa",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:48",
-      "updated_at": "2026-10-04 09:17:41"
+      "updated_at": "2026-10-04 09:26:44"
     },
     {
       "id": "member-1788707065191-cu94h7",
@@ -682,7 +836,7 @@
       "recordId": "member-1788707065191-cu94h7",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:48",
-      "updated_at": "2026-10-04 09:17:42"
+      "updated_at": "2026-10-04 09:26:45"
     },
     {
       "id": "member-1788707065191-27qr1i",
@@ -722,7 +876,7 @@
       "recordId": "member-1788707065191-27qr1i",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:48",
-      "updated_at": "2026-10-04 09:17:42"
+      "updated_at": "2026-10-04 09:26:45"
     },
     {
       "id": "member-1788707065192-mrs9ae",
@@ -762,7 +916,7 @@
       "recordId": "member-1788707065192-mrs9ae",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:48",
-      "updated_at": "2026-10-04 09:17:42"
+      "updated_at": "2026-10-04 09:26:46"
     },
     {
       "id": "member-1788707065192-wpeb39",
@@ -802,7 +956,7 @@
       "recordId": "member-1788707065192-wpeb39",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:48",
-      "updated_at": "2026-10-04 09:17:43"
+      "updated_at": "2026-10-04 09:26:46"
     },
     {
       "id": "member-1788724026755",
@@ -842,7 +996,7 @@
       "recordId": "member-1788724026755",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:48",
-      "updated_at": "2026-10-04 09:17:43"
+      "updated_at": "2026-10-04 09:26:46"
     },
     {
       "id": "member-1788724145292",
@@ -882,7 +1036,7 @@
       "recordId": "member-1788724145292",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:48",
-      "updated_at": "2026-10-04 09:17:44"
+      "updated_at": "2026-10-04 09:26:47"
     },
     {
       "id": "member-1788724243367",
@@ -922,7 +1076,7 @@
       "recordId": "member-1788724243367",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:48",
-      "updated_at": "2026-10-04 09:17:44"
+      "updated_at": "2026-10-04 09:26:47"
     },
     {
       "id": "member-1788724348318",
@@ -962,7 +1116,7 @@
       "recordId": "member-1788724348318",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:48",
-      "updated_at": "2026-10-04 09:17:45"
+      "updated_at": "2026-10-04 09:26:48"
     },
     {
       "id": "member-1788724412483",
@@ -1002,7 +1156,7 @@
       "recordId": "member-1788724412483",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:48",
-      "updated_at": "2026-10-04 09:17:45"
+      "updated_at": "2026-10-04 09:26:48"
     },
     {
       "id": "member-1788724535918",
@@ -1042,7 +1196,7 @@
       "recordId": "member-1788724535918",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:48",
-      "updated_at": "2026-10-04 09:17:45"
+      "updated_at": "2026-10-04 09:26:48"
     },
     {
       "id": "member-1788724661078",
@@ -1082,7 +1236,7 @@
       "recordId": "member-1788724661078",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:48",
-      "updated_at": "2026-10-04 09:17:46"
+      "updated_at": "2026-10-04 09:26:49"
     },
     {
       "id": "member-1789667207840",
@@ -1122,7 +1276,7 @@
       "recordId": "member-1789667207840",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:48",
-      "updated_at": "2026-10-04 09:17:46"
+      "updated_at": "2026-10-04 09:26:49"
     },
     {
       "id": "member-1790680641723",
@@ -1162,7 +1316,7 @@
       "recordId": "member-1790680641723",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:48",
-      "updated_at": "2026-10-04 09:17:47"
+      "updated_at": "2026-10-04 09:26:50"
     },
     {
       "id": "member-1790680828398",
@@ -1202,7 +1356,7 @@
       "recordId": "member-1790680828398",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:48",
-      "updated_at": "2026-10-04 09:17:47"
+      "updated_at": "2026-10-04 09:26:50"
     },
     {
       "id": "member-1788459271058",
@@ -1242,7 +1396,7 @@
       "recordId": "member-1788459271058",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:47",
-      "updated_at": "2026-10-04 09:17:47"
+      "updated_at": "2026-10-04 09:26:50"
     },
     {
       "id": "member-1788459310776",
@@ -1282,7 +1436,7 @@
       "recordId": "member-1788459310776",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:47",
-      "updated_at": "2026-10-04 09:17:48"
+      "updated_at": "2026-10-04 09:26:51"
     },
     {
       "id": "member-1788459347956",
@@ -1322,7 +1476,7 @@
       "recordId": "member-1788459347956",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:47",
-      "updated_at": "2026-10-04 09:17:48"
+      "updated_at": "2026-10-04 09:26:51"
     },
     {
       "id": "member-1788459395364",
@@ -1362,7 +1516,7 @@
       "recordId": "member-1788459395364",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:47",
-      "updated_at": "2026-10-04 09:17:48"
+      "updated_at": "2026-10-04 09:26:51"
     },
     {
       "id": "member-1788695113674-ha31go",
@@ -1402,7 +1556,7 @@
       "recordId": "member-1788695113674-ha31go",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:47",
-      "updated_at": "2026-10-04 09:17:49"
+      "updated_at": "2026-10-04 09:26:52"
     },
     {
       "id": "member-1788695113675-ev4ynl",
@@ -1442,7 +1596,7 @@
       "recordId": "member-1788695113675-ev4ynl",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:47",
-      "updated_at": "2026-10-04 09:17:49"
+      "updated_at": "2026-10-04 09:26:52"
     },
     {
       "id": "member-1788695113675-nyd1kl",
@@ -1482,7 +1636,7 @@
       "recordId": "member-1788695113675-nyd1kl",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:47",
-      "updated_at": "2026-10-04 09:17:50"
+      "updated_at": "2026-10-04 09:26:53"
     },
     {
       "id": "member-1788695113675-ej586c",
@@ -1522,7 +1676,7 @@
       "recordId": "member-1788695113675-ej586c",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:47",
-      "updated_at": "2026-10-04 09:17:50"
+      "updated_at": "2026-10-04 09:26:53"
     },
     {
       "id": "member-1788695113675-xm3iej",
@@ -1562,7 +1716,7 @@
       "recordId": "member-1788695113675-xm3iej",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:47",
-      "updated_at": "2026-10-04 09:17:50"
+      "updated_at": "2026-10-04 09:26:53"
     },
     {
       "id": "member-1788707065189-74k872",
@@ -1602,7 +1756,7 @@
       "recordId": "member-1788707065189-74k872",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:47",
-      "updated_at": "2026-10-04 09:17:51"
+      "updated_at": "2026-10-04 09:26:54"
     },
     {
       "id": "member-1788707065190-fglyki",
@@ -1642,7 +1796,7 @@
       "recordId": "member-1788707065190-fglyki",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:47",
-      "updated_at": "2026-10-04 09:17:51"
+      "updated_at": "2026-10-04 09:26:54"
     },
     {
       "id": "member-1788707065190-evjqm7",
@@ -1682,7 +1836,7 @@
       "recordId": "member-1788707065190-evjqm7",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:47",
-      "updated_at": "2026-10-04 09:17:52"
+      "updated_at": "2026-10-04 09:26:55"
     },
     {
       "id": "member-1788707065190-nb579a",
@@ -1724,7 +1878,7 @@
       "recordId": "member-1788707065190-nb579a",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:47",
-      "updated_at": "2026-10-04 09:17:52"
+      "updated_at": "2026-10-04 09:26:55"
     },
     {
       "id": "member-1788707065190-8yz1f8",
@@ -1764,7 +1918,7 @@
       "recordId": "member-1788707065190-8yz1f8",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:47",
-      "updated_at": "2026-10-04 09:17:52"
+      "updated_at": "2026-10-04 09:26:55"
     },
     {
       "id": "member-1788707065190-bdw5zd",
@@ -1804,7 +1958,7 @@
       "recordId": "member-1788707065190-bdw5zd",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:47",
-      "updated_at": "2026-10-04 09:17:53"
+      "updated_at": "2026-10-04 09:26:56"
     },
     {
       "id": "member-1788707065191-y5r802",
@@ -1846,7 +2000,7 @@
       "recordId": "member-1788707065191-y5r802",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:47",
-      "updated_at": "2026-10-04 09:17:53"
+      "updated_at": "2026-10-04 09:26:56"
     },
     {
       "id": "member-1788707065191-ueudp6",
@@ -1886,7 +2040,7 @@
       "recordId": "member-1788707065191-ueudp6",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:47",
-      "updated_at": "2026-10-04 09:17:54"
+      "updated_at": "2026-10-04 09:26:57"
     },
     {
       "id": "member-1788457013199",
@@ -1926,7 +2080,7 @@
       "recordId": "member-1788457013199",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:46",
-      "updated_at": "2026-10-04 09:17:54"
+      "updated_at": "2026-10-04 09:26:57"
     },
     {
       "id": "member-1788457389339",
@@ -1966,7 +2120,7 @@
       "recordId": "member-1788457389339",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:46",
-      "updated_at": "2026-10-04 09:17:54"
+      "updated_at": "2026-10-04 09:26:57"
     },
     {
       "id": "member-1788457439098",
@@ -2006,7 +2160,7 @@
       "recordId": "member-1788457439098",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:46",
-      "updated_at": "2026-10-04 09:17:55"
+      "updated_at": "2026-10-04 09:26:58"
     },
     {
       "id": "member-1788457581889",
@@ -2046,7 +2200,7 @@
       "recordId": "member-1788457581889",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:46",
-      "updated_at": "2026-10-04 09:17:55"
+      "updated_at": "2026-10-04 09:26:58"
     },
     {
       "id": "member-1788457645229",
@@ -2086,7 +2240,7 @@
       "recordId": "member-1788457645229",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:46",
-      "updated_at": "2026-10-04 09:17:55"
+      "updated_at": "2026-10-04 09:26:58"
     },
     {
       "id": "member-1788457743532",
@@ -2126,7 +2280,7 @@
       "recordId": "member-1788457743532",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:46",
-      "updated_at": "2026-10-04 09:17:56"
+      "updated_at": "2026-10-04 09:26:59"
     },
     {
       "id": "member-1788458120724",
@@ -2166,7 +2320,7 @@
       "recordId": "member-1788458120724",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:46",
-      "updated_at": "2026-10-04 09:17:56"
+      "updated_at": "2026-10-04 09:26:59"
     },
     {
       "id": "member-1788458264132",
@@ -2206,7 +2360,7 @@
       "recordId": "member-1788458264132",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:46",
-      "updated_at": "2026-10-04 09:17:57"
+      "updated_at": "2026-10-04 09:27:00"
     },
     {
       "id": "member-1788458293822",
@@ -2246,7 +2400,7 @@
       "recordId": "member-1788458293822",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:46",
-      "updated_at": "2026-10-04 09:17:57"
+      "updated_at": "2026-10-04 09:27:00"
     },
     {
       "id": "member-1788458512570",
@@ -2286,7 +2440,7 @@
       "recordId": "member-1788458512570",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:46",
-      "updated_at": "2026-10-04 09:17:57"
+      "updated_at": "2026-10-04 09:27:00"
     },
     {
       "id": "member-1788458537589",
@@ -2326,7 +2480,7 @@
       "recordId": "member-1788458537589",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:46",
-      "updated_at": "2026-10-04 09:17:58"
+      "updated_at": "2026-10-04 09:27:01"
     },
     {
       "id": "member-1788458566880",
@@ -2366,7 +2520,7 @@
       "recordId": "member-1788458566880",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:46",
-      "updated_at": "2026-10-04 09:17:58"
+      "updated_at": "2026-10-04 09:27:01"
     },
     {
       "id": "member-1788458607790",
@@ -2406,7 +2560,7 @@
       "recordId": "member-1788458607790",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:46",
-      "updated_at": "2026-10-04 09:17:59"
+      "updated_at": "2026-10-04 09:27:02"
     },
     {
       "id": "member-1788458640180",
@@ -2446,7 +2600,7 @@
       "recordId": "member-1788458640180",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:46",
-      "updated_at": "2026-10-04 09:17:59"
+      "updated_at": "2026-10-04 09:27:02"
     },
     {
       "id": "member-1788458674453",
@@ -2486,7 +2640,7 @@
       "recordId": "member-1788458674453",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:46",
-      "updated_at": "2026-10-04 09:17:59"
+      "updated_at": "2026-10-04 09:27:02"
     },
     {
       "id": "member-1788458704678",
@@ -2526,7 +2680,7 @@
       "recordId": "member-1788458704678",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:46",
-      "updated_at": "2026-10-04 09:18:00"
+      "updated_at": "2026-10-04 09:27:03"
     },
     {
       "id": "member-1788459183895",
@@ -2566,7 +2720,7 @@
       "recordId": "member-1788459183895",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:46",
-      "updated_at": "2026-10-04 09:18:00"
+      "updated_at": "2026-10-04 09:27:03"
     },
     {
       "id": "member-1788459231575",
@@ -2606,7 +2760,7 @@
       "recordId": "member-1788459231575",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:46",
-      "updated_at": "2026-10-04 09:18:01"
+      "updated_at": "2026-10-04 09:27:03"
     },
     {
       "id": "member-1787987642610",
@@ -2646,7 +2800,7 @@
       "recordId": "member-1787987642610",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:45",
-      "updated_at": "2026-10-04 09:18:01"
+      "updated_at": "2026-10-04 09:27:04"
     },
     {
       "id": "member-1787987780274",
@@ -2686,7 +2840,7 @@
       "recordId": "member-1787987780274",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:45",
-      "updated_at": "2026-10-04 09:18:01"
+      "updated_at": "2026-10-04 09:27:04"
     },
     {
       "id": "member-1787987968752",
@@ -2726,7 +2880,7 @@
       "recordId": "member-1787987968752",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:45",
-      "updated_at": "2026-10-04 09:18:02"
+      "updated_at": "2026-10-04 09:27:05"
     },
     {
       "id": "member-1787988068814",
@@ -2766,7 +2920,7 @@
       "recordId": "member-1787988068814",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:45",
-      "updated_at": "2026-10-04 09:18:02"
+      "updated_at": "2026-10-04 09:27:05"
     },
     {
       "id": "member-1787988175089",
@@ -2806,7 +2960,7 @@
       "recordId": "member-1787988175089",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:45",
-      "updated_at": "2026-10-04 09:18:02"
+      "updated_at": "2026-10-04 09:27:05"
     },
     {
       "id": "member-1787988266228",
@@ -2846,7 +3000,7 @@
       "recordId": "member-1787988266228",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:45",
-      "updated_at": "2026-10-04 09:18:03"
+      "updated_at": "2026-10-04 09:27:06"
     },
     {
       "id": "member-1787988401738",
@@ -2888,7 +3042,7 @@
       "recordId": "member-1787988401738",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:45",
-      "updated_at": "2026-10-04 09:18:03"
+      "updated_at": "2026-10-04 09:27:06"
     },
     {
       "id": "member-1787988508877",
@@ -2928,7 +3082,7 @@
       "recordId": "member-1787988508877",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:45",
-      "updated_at": "2026-10-04 09:18:04"
+      "updated_at": "2026-10-04 09:27:07"
     },
     {
       "id": "member-1787988600268",
@@ -2968,7 +3122,7 @@
       "recordId": "member-1787988600268",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:45",
-      "updated_at": "2026-10-04 09:18:04"
+      "updated_at": "2026-10-04 09:27:07"
     },
     {
       "id": "member-1787991618914",
@@ -3008,7 +3162,7 @@
       "recordId": "member-1787991618914",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:45",
-      "updated_at": "2026-10-04 09:18:04"
+      "updated_at": "2026-10-04 09:27:07"
     },
     {
       "id": "member-1788350489677",
@@ -3050,7 +3204,7 @@
       "recordId": "member-1788350489677",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:45",
-      "updated_at": "2026-10-04 09:18:05"
+      "updated_at": "2026-10-04 09:27:08"
     },
     {
       "id": "member-1788353051545",
@@ -3090,7 +3244,7 @@
       "recordId": "member-1788353051545",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:45",
-      "updated_at": "2026-10-04 09:18:05"
+      "updated_at": "2026-10-04 09:27:08"
     },
     {
       "id": "member-1788353967530",
@@ -3130,7 +3284,7 @@
       "recordId": "member-1788353967530",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:45",
-      "updated_at": "2026-10-04 09:18:06"
+      "updated_at": "2026-10-04 09:27:09"
     },
     {
       "id": "member-1788354790047",
@@ -3170,7 +3324,7 @@
       "recordId": "member-1788354790047",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:45",
-      "updated_at": "2026-10-04 09:18:06"
+      "updated_at": "2026-10-04 09:27:09"
     },
     {
       "id": "member-1788356990949",
@@ -3212,7 +3366,7 @@
       "recordId": "member-1788356990949",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:45",
-      "updated_at": "2026-10-04 09:18:06"
+      "updated_at": "2026-10-04 09:27:09"
     },
     {
       "id": "member-1788357649403",
@@ -3254,7 +3408,7 @@
       "recordId": "member-1788357649403",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:45",
-      "updated_at": "2026-10-04 09:18:07"
+      "updated_at": "2026-10-04 09:27:10"
     },
     {
       "id": "member-1788357812808",
@@ -3297,7 +3451,7 @@
       "recordId": "member-1788357812808",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:45",
-      "updated_at": "2026-10-04 09:18:07"
+      "updated_at": "2026-10-04 09:27:10"
     },
     {
       "id": "member-1788357928256",
@@ -3339,7 +3493,7 @@
       "recordId": "member-1788357928256",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:45",
-      "updated_at": "2026-10-04 09:18:08"
+      "updated_at": "2026-10-04 09:27:11"
     },
     {
       "id": "ngowi1",
@@ -3379,7 +3533,7 @@
       "recordId": "ngowi1",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:44",
-      "updated_at": "2026-10-04 09:18:08"
+      "updated_at": "2026-10-04 09:27:11"
     },
     {
       "id": "mremi",
@@ -3419,7 +3573,7 @@
       "recordId": "mremi",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:44",
-      "updated_at": "2026-10-04 09:18:08"
+      "updated_at": "2026-10-04 09:27:11"
     },
     {
       "id": "ngowi2",
@@ -3459,7 +3613,7 @@
       "recordId": "ngowi2",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:44",
-      "updated_at": "2026-10-04 09:18:09"
+      "updated_at": "2026-10-04 09:27:12"
     },
     {
       "id": "nyange",
@@ -3499,7 +3653,7 @@
       "recordId": "nyange",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:44",
-      "updated_at": "2026-10-04 09:18:09"
+      "updated_at": "2026-10-04 09:27:12"
     },
     {
       "id": "siara",
@@ -3539,7 +3693,7 @@
       "recordId": "siara",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:44",
-      "updated_at": "2026-10-04 09:18:09"
+      "updated_at": "2026-10-04 09:27:12"
     },
     {
       "id": "maina",
@@ -3579,7 +3733,7 @@
       "recordId": "maina",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:44",
-      "updated_at": "2026-10-04 09:18:10"
+      "updated_at": "2026-10-04 09:27:13"
     },
     {
       "id": "josephMaliti",
@@ -3619,7 +3773,7 @@
       "recordId": "josephMaliti",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:44",
-      "updated_at": "2026-10-04 09:18:10"
+      "updated_at": "2026-10-04 09:27:13"
     },
     {
       "id": "member-1787931559189",
@@ -3659,7 +3813,7 @@
       "recordId": "member-1787931559189",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:44",
-      "updated_at": "2026-10-04 09:18:11"
+      "updated_at": "2026-10-04 09:27:14"
     },
     {
       "id": "member-1787937457121",
@@ -3699,7 +3853,7 @@
       "recordId": "member-1787937457121",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:44",
-      "updated_at": "2026-10-04 09:18:11"
+      "updated_at": "2026-10-04 09:27:14"
     },
     {
       "id": "member-1787937693627",
@@ -3739,7 +3893,7 @@
       "recordId": "member-1787937693627",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:44",
-      "updated_at": "2026-10-04 09:18:11"
+      "updated_at": "2026-10-04 09:27:14"
     },
     {
       "id": "member-1787944665512",
@@ -3781,7 +3935,7 @@
       "recordId": "member-1787944665512",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:44",
-      "updated_at": "2026-10-04 09:18:12"
+      "updated_at": "2026-10-04 09:27:15"
     },
     {
       "id": "member-1787944893406",
@@ -3821,207 +3975,7 @@
       "recordId": "member-1787944893406",
       "storedPhoto": null,
       "created_at": "2026-10-01 19:47:44",
-      "updated_at": "2026-10-04 09:18:12"
-    },
-    {
-      "id": "5",
-      "clanMemberNumber": "Assigned when saved",
-      "firstName": "Researchlink",
-      "middleName": null,
-      "lastName": "International",
-      "sex": "Male",
-      "branchType": "heritage",
-      "honorific": null,
-      "dob": null,
-      "placeOfBirth": null,
-      "birthPeriod": null,
-      "deceased": false,
-      "dod": null,
-      "ageCategory": "Historical / Unknown",
-      "deathAge": null,
-      "causeOfDeath": "Not Recorded",
-      "fatherId": null,
-      "motherId": null,
-      "spouseId": null,
-      "siblingIds": null,
-      "maritalStatus": "Not Recorded",
-      "education": "Not Recorded",
-      "course": null,
-      "employment": "Not Recorded",
-      "occupation": null,
-      "organization": "ResearchLink International",
-      "religion": "Not Recorded",
-      "denomination": null,
-      "phone": null,
-      "whatsapp": null,
-      "email": null,
-      "location": null,
-      "photoFile": null,
-      "narrative": null,
-      "recordId": null,
-      "storedPhoto": null,
-      "created_at": "2026-10-01 19:17:57",
-      "updated_at": "2026-10-01 19:17:57"
-    },
-    {
-      "id": "4",
-      "clanMemberNumber": "Assigned when saved",
-      "firstName": "check",
-      "middleName": null,
-      "lastName": "",
-      "sex": "Male",
-      "branchType": "heritage",
-      "honorific": null,
-      "dob": null,
-      "placeOfBirth": null,
-      "birthPeriod": null,
-      "deceased": false,
-      "dod": null,
-      "ageCategory": "Historical / Unknown",
-      "deathAge": null,
-      "causeOfDeath": "Not Recorded",
-      "fatherId": null,
-      "motherId": null,
-      "spouseId": null,
-      "siblingIds": null,
-      "maritalStatus": "Not Recorded",
-      "education": "Not Recorded",
-      "course": null,
-      "employment": "Not Recorded",
-      "occupation": null,
-      "organization": null,
-      "religion": "Not Recorded",
-      "denomination": null,
-      "phone": null,
-      "whatsapp": null,
-      "email": null,
-      "location": null,
-      "photoFile": null,
-      "narrative": null,
-      "recordId": null,
-      "storedPhoto": null,
-      "created_at": "2026-10-01 18:28:32",
-      "updated_at": "2026-10-01 18:28:32"
-    },
-    {
-      "id": "3",
-      "clanMemberNumber": "Assigned when saved",
-      "firstName": "AUTOCOMPLETE",
-      "middleName": null,
-      "lastName": "",
-      "sex": "Male",
-      "branchType": "heritage",
-      "honorific": null,
-      "dob": null,
-      "placeOfBirth": null,
-      "birthPeriod": null,
-      "deceased": false,
-      "dod": null,
-      "ageCategory": "Historical / Unknown",
-      "deathAge": null,
-      "causeOfDeath": "Not Recorded",
-      "fatherId": null,
-      "motherId": null,
-      "spouseId": null,
-      "siblingIds": null,
-      "maritalStatus": "Not Recorded",
-      "education": "Not Recorded",
-      "course": null,
-      "employment": "Not Recorded",
-      "occupation": null,
-      "organization": null,
-      "religion": "Not Recorded",
-      "denomination": null,
-      "phone": null,
-      "whatsapp": null,
-      "email": null,
-      "location": null,
-      "photoFile": null,
-      "narrative": null,
-      "recordId": null,
-      "storedPhoto": null,
-      "created_at": "2026-10-01 18:06:44",
-      "updated_at": "2026-10-01 18:06:44"
-    },
-    {
-      "id": "2",
-      "clanMemberNumber": "Assigned when saved",
-      "firstName": "DEODATUS",
-      "middleName": null,
-      "lastName": "MALITI1",
-      "sex": "Male",
-      "branchType": "heritage",
-      "honorific": null,
-      "dob": null,
-      "placeOfBirth": null,
-      "birthPeriod": null,
-      "deceased": false,
-      "dod": null,
-      "ageCategory": "Historical / Unknown",
-      "deathAge": null,
-      "causeOfDeath": "Not Recorded",
-      "fatherId": null,
-      "motherId": null,
-      "spouseId": null,
-      "siblingIds": null,
-      "maritalStatus": "Not Recorded",
-      "education": "Not Recorded",
-      "course": null,
-      "employment": "Not Recorded",
-      "occupation": null,
-      "organization": "ResearchLink International",
-      "religion": "Not Recorded",
-      "denomination": null,
-      "phone": "0686997270",
-      "whatsapp": null,
-      "email": "deodatusmaliti2@gmail.com",
-      "location": null,
-      "photoFile": null,
-      "narrative": null,
-      "recordId": null,
-      "storedPhoto": null,
-      "created_at": "2026-10-01 16:55:35",
-      "updated_at": "2026-10-01 16:55:35"
-    },
-    {
-      "id": "95",
-      "clanMemberNumber": "Assigned when saved",
-      "firstName": "MORNING ",
-      "middleName": "",
-      "lastName": "",
-      "sex": "Male",
-      "branchType": "heritage",
-      "honorific": "",
-      "dob": "",
-      "placeOfBirth": "",
-      "birthPeriod": "",
-      "deceased": false,
-      "dod": "",
-      "ageCategory": "Historical / Unknown",
-      "deathAge": "",
-      "causeOfDeath": "Not Recorded",
-      "fatherId": "",
-      "motherId": "",
-      "spouseId": "",
-      "siblingIds": [],
-      "maritalStatus": "Not Recorded",
-      "education": "Not Recorded",
-      "course": "",
-      "employment": "Not Recorded",
-      "occupation": "",
-      "organization": "ResearchLink International",
-      "religion": "Not Recorded",
-      "denomination": "",
-      "phone": "0686997270",
-      "whatsapp": "",
-      "email": "deodatusmaliti2@gmail.com",
-      "location": "",
-      "photoFile": null,
-      "narrative": "",
-      "recordId": "95",
-      "storedPhoto": null,
-      "created_at": "2026-10-01 16:25:05",
-      "updated_at": "2026-10-04 09:17:38"
+      "updated_at": "2026-10-04 09:27:15"
     }
   ]
 }
