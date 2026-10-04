@@ -1,0 +1,8 @@
+{
+  "name": "SiaraMaina Clan Informatics",
+  "description": "Comprehensive genealogical informatics and family tree management platform for the Siara Maina clan.",
+  "requestor": "deodatusmaliti2@gmail.com",
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
