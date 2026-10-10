@@ -35,9 +35,8 @@ apiRouter.get(["/db/handshake", "/db/supabase-handshake"], async (req: Request, 
   return res.json({
     success: true,
     status: "ONLINE_CONNECTED",
-    database: "Cloudflare D1 (siaramaina-db)",
-    engine: "Cloudflare D1 SQLite Edge Engine",
-    firestore: "ai-studio-siaramainaclanin-460807ca-5792-43ae-aa12-303da9af9152",
+    database: "Self-Sustaining JSON Storage (siara-maina-clan-data.json)",
+    engine: "Atomic JSON Persistent Storage Engine",
     cloudUrl: "https://siaramaina.researchlinktz.com",
     count: stats.totalRecords,
     totalUsers: stats.totalUsers,
@@ -45,7 +44,7 @@ apiRouter.get(["/db/handshake", "/db/supabase-handshake"], async (req: Request, 
     totalAuditLogs: stats.totalAuditLogs,
     lastModified: stats.lastModified,
     handshakeTime: new Date().toISOString(),
-    message: "Handshake verified. Cloudflare D1 database and Firebase Auth are 100% active and healthy.",
+    message: "Handshake verified. Self-Sustaining JSON Database and Email Auth Engine are 100% active and healthy.",
   });
 });
 
@@ -53,7 +52,7 @@ apiRouter.get(["/db/audit-logs", "/db/supabase-audit-logs"], async (req: Request
   const logs = dbEngine.getCollection("auditLogs");
   return res.json({
     success: true,
-    source: "Cloudflare D1 & Persistent Engine",
+    source: "Self-Sustaining JSON Storage",
     count: logs.length,
     logs: logs.slice(0, 50),
   });
@@ -154,7 +153,7 @@ apiRouter.post("/auth/register", async (req: Request, res: Response) => {
       uid: "user-" + crypto.randomUUID().slice(0, 10),
       email: cleanEmail,
       displayName: displayName || cleanEmail.split("@")[0],
-      role: isFirst ? "admin" : (role as any) || "viewer",
+      role: "admin",
       institution: institution || "SiaraMaina Clan Informatics",
       branch: branch || "all",
       passwordHash,
@@ -538,3 +537,243 @@ apiRouter.get("/db/backups/:filename", (req: Request, res: Response) => {
 apiRouter.get("/metrics", (req: Request, res: Response) => {
   res.json(metricsEngine.getMetrics());
 });
+
+// ============================================================================
+// 8. Authoritative Clan Members CRUD Endpoints (/api/members)
+// Stored persistently in siara-maina-clan-data.json and data/records.json
+// Broadcast in real time across all remote browser sessions
+// ============================================================================
+
+function normalizeMemberRecord(body: any, existingId?: string) {
+  const id = existingId || body.id || body.recordId || ("rec-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7));
+
+  let siblingIds = body.siblingIds;
+  if (typeof siblingIds === "string") {
+    if (siblingIds.trim().startsWith("[")) {
+      try { siblingIds = JSON.parse(siblingIds); } catch { siblingIds = []; }
+    } else if (siblingIds.trim()) {
+      siblingIds = [siblingIds.trim()];
+    } else {
+      siblingIds = [];
+    }
+  } else if (!Array.isArray(siblingIds)) {
+    siblingIds = [];
+  }
+
+  const deceased = body.deceased === true || body.deceased === "true" || body.deceased === 1;
+
+  return {
+    id: String(id),
+    recordId: String(id),
+    clanMemberNumber: String(body.clanMemberNumber || body.clan_member_number || "").trim(),
+    firstName: String(body.firstName || body.first_name || "").trim(),
+    middleName: String(body.middleName || body.middle_name || "").trim(),
+    lastName: String(body.lastName || body.last_name || "").trim(),
+    sex: String(body.sex || body.gender || "").trim(),
+    branchType: String(body.branchType || body.branch_type || "").trim(),
+    honorific: String(body.honorific || "").trim(),
+    dob: String(body.dob || body.date_of_birth || "").trim(),
+    placeOfBirth: String(body.placeOfBirth || body.place_of_birth || "").trim(),
+    birthPeriod: String(body.birthPeriod || body.birth_period || "").trim(),
+    deceased: deceased,
+    dod: String(body.dod || body.date_of_death || "").trim(),
+    ageCategory: String(body.ageCategory || body.age_category || "").trim(),
+    deathAge: body.deathAge != null ? String(body.deathAge) : "",
+    causeOfDeath: String(body.causeOfDeath || body.cause_of_death || "").trim(),
+    fatherId: String(body.fatherId || body.father_id || "").trim(),
+    motherId: String(body.motherId || body.mother_id || "").trim(),
+    spouseId: String(body.spouseId || body.spouse_id || "").trim(),
+    siblingIds: siblingIds,
+    maritalStatus: String(body.maritalStatus || body.marital_status || "").trim(),
+    education: String(body.education || "").trim(),
+    course: String(body.course || "").trim(),
+    employment: String(body.employment || "").trim(),
+    occupation: String(body.occupation || "").trim(),
+    organization: String(body.organization || "").trim(),
+    religion: String(body.religion || "").trim(),
+    denomination: String(body.denomination || "").trim(),
+    phone: String(body.phone || body.mobile || "").trim(),
+    whatsapp: String(body.whatsapp || "").trim(),
+    email: String(body.email || "").trim(),
+    location: String(body.location || body.address || "").trim(),
+    photoFile: String(body.photoFile || "").trim(),
+    narrative: String(body.narrative || body.bio || "").trim(),
+    photo: String(body.storedPhoto || body.photo || body.photoFile || "").trim(),
+    storedPhoto: String(body.storedPhoto || body.photo || "").trim(),
+    createdAt: body.createdAt || new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+}
+
+// GET /api/members - Fetch all clan members
+apiRouter.get("/members", async (req: Request, res: Response) => {
+  try {
+    const records = dbEngine.getCollection("records") || [];
+    res.json({
+      success: true,
+      count: records.length,
+      members: records,
+      records: records,
+      data: records,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// POST /api/members - Add a new clan member (atomic JSON persistence + real-time broadcast)
+apiRouter.post("/members", async (req: Request, res: Response) => {
+  try {
+    const rawBody = req.body || {};
+    const memberData = normalizeMemberRecord(rawBody);
+
+    const savedDoc = await dbEngine.setDocument("records", memberData.id, memberData);
+    await dbEngine.setDocument("members", memberData.id, memberData);
+
+    const allRecords = dbEngine.getCollection("records");
+
+    syncManager.broadcast("doc_change", {
+      action: "SET",
+      collection: "records",
+      id: savedDoc.id,
+      doc: savedDoc,
+      records: allRecords,
+      count: allRecords.length,
+      timestamp: new Date().toISOString()
+    });
+
+    syncManager.broadcast("sync_pulse", {
+      action: "MEMBER_ADDED",
+      count: allRecords.length,
+      timestamp: new Date().toISOString()
+    });
+
+    res.json({
+      success: true,
+      message: "Member added and persistently stored in JSON database",
+      id: savedDoc.id,
+      recordId: savedDoc.id,
+      memberId: savedDoc.id,
+      member: savedDoc,
+      data: savedDoc,
+      count: allRecords.length
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// PUT /api/members - Update an existing clan member
+apiRouter.put("/members", async (req: Request, res: Response) => {
+  try {
+    const rawBody = req.body || {};
+    const targetId = String(rawBody.id || rawBody.recordId || rawBody.clanMemberNumber || "");
+    if (!targetId) {
+      return res.status(400).json({ success: false, error: "Member id or recordId is required for update." });
+    }
+
+    const records = dbEngine.getCollection("records");
+    const existing = records.find((r: any) => r.id === targetId || r.recordId === targetId || (rawBody.clanMemberNumber && r.clanMemberNumber === rawBody.clanMemberNumber));
+    const mergedData = { ...(existing || {}), ...rawBody };
+    const memberData = normalizeMemberRecord(mergedData, existing ? existing.id : targetId);
+
+    const savedDoc = await dbEngine.setDocument("records", memberData.id, memberData);
+    await dbEngine.setDocument("members", memberData.id, memberData);
+
+    const allRecords = dbEngine.getCollection("records");
+
+    syncManager.broadcast("doc_change", {
+      action: "UPDATE",
+      collection: "records",
+      id: savedDoc.id,
+      doc: savedDoc,
+      records: allRecords,
+      count: allRecords.length,
+      timestamp: new Date().toISOString()
+    });
+
+    res.json({
+      success: true,
+      message: "Member updated and persistently saved in JSON database",
+      id: savedDoc.id,
+      recordId: savedDoc.id,
+      member: savedDoc,
+      data: savedDoc,
+      count: allRecords.length
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// DELETE /api/members - Delete a member by ID (query param or body)
+apiRouter.delete("/members", async (req: Request, res: Response) => {
+  try {
+    const id = String(req.query.id || req.body?.id || req.body?.recordId || "");
+    if (!id) {
+      return res.status(400).json({ success: false, error: "id parameter is required for deletion." });
+    }
+
+    await dbEngine.deleteDocument("records", id);
+    await dbEngine.deleteDocument("members", id);
+
+    const allRecords = dbEngine.getCollection("records");
+
+    syncManager.broadcast("doc_change", {
+      action: "DELETE",
+      collection: "records",
+      id: id,
+      records: allRecords,
+      count: allRecords.length,
+      timestamp: new Date().toISOString()
+    });
+
+    res.json({
+      success: true,
+      message: "Member deleted from JSON database",
+      id: id,
+      count: allRecords.length
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// DELETE /api/members/:id - Delete a member by path param
+apiRouter.delete("/members/:id", async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    await dbEngine.deleteDocument("records", id);
+    await dbEngine.deleteDocument("members", id);
+
+    const allRecords = dbEngine.getCollection("records");
+
+    syncManager.broadcast("doc_change", {
+      action: "DELETE",
+      collection: "records",
+      id: id,
+      records: allRecords,
+      count: allRecords.length,
+      timestamp: new Date().toISOString()
+    });
+
+    res.json({
+      success: true,
+      message: "Member deleted from JSON database",
+      id: id,
+      count: allRecords.length
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 9. API Fallback 404 Handler (always returns JSON, never HTML)
+apiRouter.all("*", (req: Request, res: Response) => {
+  res.status(404).json({
+    success: false,
+    error: `API route not found: ${req.method} ${req.originalUrl}`
+  });
+});
+

@@ -54,5 +54,20 @@
     "displayName": "Honory",
     "role": "editor",
     "active": true
+  },
+  {
+    "uid": "user-b56b5484-7",
+    "email": "dmaliti@researchlinktz.com",
+    "displayName": "dmaliti",
+    "role": "editor",
+    "institution": "SiaraMaina Clan Informatics",
+    "branch": "all",
+    "passwordHash": "a049fe50f7bbdee19500a9ce3c02dcdbf1a190b66c04650411b60e225d76c716",
+    "salt": "a49957f6784c2ef1af2a0b2ae4fd7f00",
+    "createdAt": "2026-10-10T13:50:04.546Z",
+    "lastLogin": "2026-10-10T13:50:04.546Z",
+    "status": "active",
+    "active": true,
+    "provider": "password"
   }
 ]

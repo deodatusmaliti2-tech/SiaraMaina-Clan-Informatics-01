@@ -1,5 +1,6 @@
 import { Response } from "express";
 import { WebSocket } from "ws";
+import { dbEngine } from "./db";
 
 interface ConnectedSSEClient {
   id: string;
@@ -104,13 +105,36 @@ class RealtimeSyncManager {
       this.wsClients.delete(id);
     });
 
-    // Immediate Handshake with connection count
+    ws.on("message", (raw) => {
+      try {
+        const msg = JSON.parse(raw.toString());
+        if (msg.type === "SYNC_REQUEST") {
+          const records = dbEngine.getCollection("records");
+          ws.send(JSON.stringify({
+            event: "doc_change",
+            payload: {
+              action: "SYNC_ALL",
+              collection: "records",
+              records: records,
+              count: records.length,
+              timestamp: new Date().toISOString(),
+            }
+          }));
+        } else if (msg.type === "HEARTBEAT") {
+          ws.send(JSON.stringify({ event: "PONG", timestamp: Date.now() }));
+        }
+      } catch (err) {}
+    });
+
+    // Immediate Handshake with connection count and current authoritative records
     try {
+      const records = dbEngine.getCollection("records");
       ws.send(JSON.stringify({
         event: "handshake",
         clientId: id,
         status: "CONNECTED",
         activeNodes: this.getActiveClientCount(),
+        count: records.length,
         timestamp: new Date().toISOString(),
       }));
     } catch {}

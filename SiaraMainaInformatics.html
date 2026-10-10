@@ -9,18 +9,7 @@
       const originalConsoleError = console.error;
       console.error = function(...args) {
         const msg = args.map(arg => typeof arg === "object" ? (arg?.message || JSON.stringify(arg)) : String(arg)).join(" ");
-        if (
-          msg.includes("Detected an update time that is in the future") ||
-          msg.includes("firebase/firestore") ||
-          msg.includes("@firebase/firestore") ||
-          msg.includes("Could not reach Cloud Firestore") ||
-          msg.includes("update time that is in the future") ||
-          msg.includes("Quota exceeded") ||
-          msg.includes("Quota limit exceeded") ||
-          msg.includes("quota") ||
-          msg.includes("RESOURCE_EXHAUSTED") ||
-          msg.includes("Profile real-time subscription")
-        ) {
+        if (msg.includes("Detected an update time that is in the future") || msg.includes("firebase/firestore") || msg.includes("@firebase/firestore") || msg.includes("Could not reach Cloud Firestore") || msg.includes("update time that is in the future")) {
           return;
         }
         originalConsoleError.apply(console, args);
@@ -29,13 +18,7 @@
       const originalConsoleWarn = console.warn;
       console.warn = function(...args) {
         const msg = args.map(arg => typeof arg === "object" ? (arg?.message || JSON.stringify(arg)) : String(arg)).join(" ");
-        if (
-          msg.includes("Detected an update time that is in the future") ||
-          msg.includes("firebase/firestore") ||
-          msg.includes("@firebase/firestore") ||
-          msg.includes("Could not reach Cloud Firestore") ||
-          msg.includes("update time that is in the future")
-        ) {
+        if (msg.includes("Detected an update time that is in the future") || msg.includes("firebase/firestore") || msg.includes("@firebase/firestore") || msg.includes("Could not reach Cloud Firestore") || msg.includes("update time that is in the future")) {
           return;
         }
         originalConsoleWarn.apply(console, args);
@@ -664,8 +647,9 @@
     .um-action-btn.danger{color:#dc2626;border-color:#fca5a5;background:#fef2f2}
     .um-action-btn.danger:hover{background:#fee2e2}
     
-    .toast-popup{position:fixed;top:18px;right:18px;background:#064e3b;color:#fff;padding:12px 18px;border-radius:8px;font-size:0.8rem;font-weight:800;box-shadow:0 10px 25px rgba(0,0,0,0.25);z-index:999999;display:flex;align-items:center;gap:8px;animation:slideInToast 0.25s ease-out}
-    @keyframes slideInToast{from{transform:translateY(-20px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .toast-popup{position:fixed;bottom:20px;left:20px;top:auto;right:auto;background:#064e3b;color:#fff;padding:7px 12px;border-radius:8px;font-size:0.73rem;font-weight:800;box-shadow:0 6px 18px rgba(0,0,0,0.22);z-index:999999;display:flex;align-items:center;gap:8px;animation:slideInToastBottomLeft 0.22s ease-out;max-width:280px;cursor:pointer;border:1px solid rgba(255,255,255,0.2);line-height:1.35}
+    @keyframes slideInToastBottomLeft{from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1}}
+    @media(max-width:720px){.toast-popup{bottom:16px;left:14px;max-width:calc(100vw - 28px);padding:6px 10px;font-size:0.71rem}}
     
     /* Mass Outreach & Role Invitation Toolbar */
     .um-mass-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;background:linear-gradient(135deg,#064e3b 0%,#0f766e 100%);color:#fff;padding:10px 14px;border-radius:8px;margin-bottom:12px;box-shadow:0 4px 12px rgba(6,78,59,0.18);animation:fadeInUmBar 0.2s ease-out}
@@ -1033,38 +1017,79 @@
           </div>
         </div>
 
-        <!-- Informational Welcome Box -->
-        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:12px 14px; margin-bottom:18px; text-align:left;">
-          <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
-            <span style="font-size:1.1rem;">🔐</span>
-            <strong style="color:#0f172a; font-size:0.82rem;">Authorized Member Portal</strong>
-          </div>
-          <p style="margin:0; font-size:0.75rem; color:#64748b; line-height:1.45;">
-            Sign in with your Google account to unlock genealogical record management, lineage additions, and real-time database sync.
-          </p>
+        <!-- Auth Tabs Header -->
+        <div style="display:flex; gap:6px; margin-bottom:16px; border-bottom:1px solid #e2e8f0; padding-bottom:10px;">
+          <button id="tabSignIn" type="button" onclick="setAuthTab('signin')" class="tab-btn active" style="flex:1; padding:8px; font-weight:800; font-size:0.8rem; border-radius:6px; border:1px solid #cbd5e1; background:var(--forest); color:#fff; cursor:pointer;">Sign In</button>
+          <button id="tabSignUp" type="button" onclick="setAuthTab('signup')" class="tab-btn" style="flex:1; padding:8px; font-weight:800; font-size:0.8rem; border-radius:6px; border:1px solid #cbd5e1; background:#f1f5f9; color:#334155; cursor:pointer;">Create Account</button>
         </div>
 
-        <div id="loginAlert" class="campusflow-alert error" role="alert" style="display:none; margin-bottom:16px;"></div>
+        <div id="loginAlert" class="campusflow-alert error" role="alert" style="display:none; margin-bottom:12px;"></div>
+        <div id="registerAlert" class="campusflow-alert error" role="alert" style="display:none; margin-bottom:12px;"></div>
 
-        <!-- Primary Google Provider SSO Button -->
-        <button id="googleAuthBtn" class="campusflow-google-btn" type="button" onclick="handleFirebaseGoogleSignIn()" style="width:100%; display:flex; align-items:center; justify-content:center; gap:12px; padding:12px 16px; font-size:0.9rem; font-weight:700; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.06); transition:all 0.15s ease; cursor:pointer;">
-          <svg width="20" height="20" viewBox="0 0 24 24">
+        <!-- 1. Sign In Form (Email & Password) -->
+        <form id="signInForm" onsubmit="handleFirebaseSignIn(event)" style="display:block;">
+          <div style="margin-bottom:12px; text-align:left;">
+            <label style="display:block; font-size:0.75rem; font-weight:800; color:#334155; margin-bottom:4px;">Email Address</label>
+            <input id="loginEmail" type="email" placeholder="user@domain.com" required style="width:100%; padding:10px; border-radius:8px; border:1px solid #cbd5e1; font-size:0.85rem;">
+          </div>
+          <div style="margin-bottom:14px; text-align:left;">
+            <label style="display:block; font-size:0.75rem; font-weight:800; color:#334155; margin-bottom:4px;">Password (min 4 characters)</label>
+            <input id="loginPassword" type="password" placeholder="••••••••" required style="width:100%; padding:10px; border-radius:8px; border:1px solid #cbd5e1; font-size:0.85rem;">
+          </div>
+          <button id="signInSubmitBtn" type="submit" class="button primary" style="width:100%; padding:11px; font-weight:900; font-size:0.85rem; border-radius:8px; background:var(--forest); color:#fff; border:none; cursor:pointer; margin-bottom:12px;">Sign In to Portal</button>
+        </form>
+
+        <!-- 2. Sign Up Form (Email & Password Registration) -->
+        <form id="signUpForm" onsubmit="handleFirebaseSignUp(event)" style="display:none;">
+          <div style="margin-bottom:10px; text-align:left;">
+            <label style="display:block; font-size:0.75rem; font-weight:800; color:#334155; margin-bottom:4px;">Full Display Name</label>
+            <input id="registerName" type="text" placeholder="e.g. John Maliti" required style="width:100%; padding:9px; border-radius:8px; border:1px solid #cbd5e1; font-size:0.82rem;">
+          </div>
+          <div style="margin-bottom:10px; text-align:left;">
+            <label style="display:block; font-size:0.75rem; font-weight:800; color:#334155; margin-bottom:4px;">Clan Branch</label>
+            <select id="registerBranch" style="width:100%; padding:9px; border-radius:8px; border:1px solid #cbd5e1; font-size:0.82rem; background:#fff;">
+              <option value="general">General / Heritage</option>
+              <option value="siara">Siara Branch</option>
+              <option value="maina">Maina Branch</option>
+              <option value="maliti">Maliti Family</option>
+            </select>
+          </div>
+          <div style="margin-bottom:10px; text-align:left;">
+            <label style="display:block; font-size:0.75rem; font-weight:800; color:#334155; margin-bottom:4px;">Email Address</label>
+            <input id="registerEmail" type="email" placeholder="user@domain.com" required style="width:100%; padding:9px; border-radius:8px; border:1px solid #cbd5e1; font-size:0.82rem;">
+          </div>
+          <div style="margin-bottom:10px; text-align:left;">
+            <label style="display:block; font-size:0.75rem; font-weight:800; color:#334155; margin-bottom:4px;">Password (min 4 characters)</label>
+            <input id="registerPassword" type="password" placeholder="••••••••" required style="width:100%; padding:9px; border-radius:8px; border:1px solid #cbd5e1; font-size:0.82rem;">
+          </div>
+          <div style="margin-bottom:14px; text-align:left;">
+            <label style="display:block; font-size:0.75rem; font-weight:800; color:#334155; margin-bottom:4px;">Confirm Password</label>
+            <input id="registerConfirmPassword" type="password" placeholder="••••••••" required style="width:100%; padding:9px; border-radius:8px; border:1px solid #cbd5e1; font-size:0.82rem;">
+          </div>
+          <button id="signUpSubmitBtn" type="submit" class="button primary" style="width:100%; padding:11px; font-weight:900; font-size:0.85rem; border-radius:8px; background:var(--forest); color:#fff; border:none; cursor:pointer; margin-bottom:12px;">Create Clan Account</button>
+        </form>
+
+        <div style="display:flex; align-items:center; gap:10px; margin:12px 0; color:#94a3b8; font-size:0.75rem; font-weight:700;">
+          <div style="flex:1; height:1px; background:#e2e8f0;"></div>
+          <span>OR SIGN IN WITH GOOGLE</span>
+          <div style="flex:1; height:1px; background:#e2e8f0;"></div>
+        </div>
+
+        <!-- Google Provider SSO Button -->
+        <button id="googleAuthBtn" class="campusflow-google-btn" type="button" onclick="handleFirebaseGoogleSignIn()" style="width:100%; display:flex; align-items:center; justify-content:center; gap:10px; padding:10px 14px; font-size:0.82rem; font-weight:700; border-radius:8px; border:1px solid #cbd5e1; background:#fff; color:#334155; box-shadow:0 1px 3px rgba(0,0,0,0.04); cursor:pointer;">
+          <svg width="18" height="18" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
           </svg>
-          <span>Sign In with Google Account</span>
+          <span>Continue with Google Account</span>
         </button>
 
         <!-- Secondary Action: Guest Read-Only Access -->
-        <button type="button" onclick="closeLoginModal()" style="margin-top:12px; width:100%; padding:10px; font-size:0.8rem; font-weight:700; border:1px solid #cbd5e1; border-radius:10px; background:#ffffff; color:#475569; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.15s ease;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#ffffff'">
+        <button type="button" onclick="closeLoginModal()" style="margin-top:10px; width:100%; padding:9px; font-size:0.78rem; font-weight:700; border:1px solid #cbd5e1; border-radius:8px; background:#ffffff; color:#475569; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#ffffff'">
           <span>👁️</span> Continue Browsing Archive as Guest
         </button>
-
-        <div style="margin-top:16px; padding:8px 12px; border-radius:10px; background:#f8fafc; border:1px solid #e2e8f0; font-size:0.68rem; color:#64748b; text-align:center; line-height:1.4;">
-          🔒 Secure OAuth authentication via Google &bull; In-Built Cloud Database Engine with Real-Time SSE Sync.
-        </div>
       </div>
     </div>
   </section>
@@ -1108,7 +1133,7 @@
           </div>
           <div class="command-group"><span class="command-label">Tools</span>
             <div class="dropdown"><button class="top-button" type="button" onclick="toggleMenu('viewMenu')">View <span aria-hidden="true">▾</span></button><div id="viewMenu" class="dropdown-menu"><button type="button" onclick="setViewStyle('card')">Card View</button><button type="button" onclick="setViewStyle('line')">Line View</button><button type="button" onclick="showGrowthDashboard()">📈 Clan Growth Analytics</button><button type="button" onclick="showMap()">Geographical Map</button><button id="spouseToggle" type="button" onclick="toggleSpouses()">Hide Spouses</button></div></div>
-            <div class="dropdown"><button class="top-button" type="button" onclick="toggleMenu('utilitiesMenu')">Utilities <span aria-hidden="true">▾</span></button><div id="utilitiesMenu" class="dropdown-menu"><button type="button" onclick="showMap()">Geographical Map</button><button type="button" onclick="openRelationship()">Relationship Finder</button><button type="button" onclick="openBiography()">Biography</button><button type="button" onclick="exportCsv()">Export CSV</button><button type="button" onclick="exportPdf()">Export PDF</button><button type="button" onclick="openMemberInviteModal()">Send Member Info Link</button><button type="button" onclick="openBulkOutreachModal()">Bulk WhatsApp Outreach</button><button id="shareProjectButton" type="button" onclick="openProjectShare()">Share Project</button><button id="importCsvButton" type="button" onclick="document.getElementById('csvImport').click()">Import CSV</button><button id="saveProjectButton" type="button" onclick="saveProjectData()">Save Project Data</button><button id="restoreProjectButton" type="button" onclick="document.getElementById('projectImport').click()">Restore Project Data</button><button id="dropdownBackupBtn" type="button" onclick="openBackupDatabaseModal()" style="display:block;width:100%;text-align:left;padding:8px 12px;color:#065f46;background:#ecfdf5;font-weight:800;font-size:0.75rem;border-radius:6px;margin:4px 0;border:1px solid #a7f3d0;cursor:pointer;">📦 Backup Database &amp; Snapshots</button><button id="saveGithubButton" type="button" onclick="event.stopPropagation(); if(event.cancelable) event.preventDefault(); synchronizeProjectDataWithGitHub(event);">Synchronize with GitHub</button>
+            <div class="dropdown"><button class="top-button" type="button" onclick="toggleMenu('utilitiesMenu')">Utilities <span aria-hidden="true">▾</span></button><div id="utilitiesMenu" class="dropdown-menu"><button type="button" onclick="showMap()">Geographical Map</button><button type="button" onclick="openRelationship()">Relationship Finder</button><button type="button" onclick="openBiography()">Biography</button><button type="button" onclick="exportCsv()">Export CSV</button><button type="button" onclick="exportPdf()">Export PDF</button><button type="button" onclick="openMemberInviteModal()">Send Member Info Link</button><button type="button" onclick="openBulkOutreachModal()">Bulk WhatsApp Outreach</button><button id="shareProjectButton" type="button" onclick="openProjectShare()">Share Project</button><button id="importCsvButton" type="button" onclick="document.getElementById('csvImport').click()">Import CSV</button><button id="saveProjectButton" type="button" onclick="saveProjectData()">Save Project Data</button><button id="restoreProjectButton" type="button" onclick="document.getElementById('projectImport').click()">Restore Project Data</button><button id="dropdownBackupBtn" type="button" onclick="openBackupDatabaseModal()" style="display:block;width:100%;text-align:left;padding:8px 12px;color:#065f46;background:#ecfdf5;font-weight:800;font-size:0.75rem;border-radius:6px;margin:4px 0;border:1px solid #a7f3d0;cursor:pointer;">📦 Backup Database &amp; Snapshots</button><button id="saveGithubButton" type="button" onclick="synchronizeProjectDataWithGitHub()">Synchronize with GitHub</button>
 <button type="button" onclick="openInbuiltDiagnosticsModal()" style="display:block;width:100%;text-align:left;padding:8px 12px;color:var(--forest);background:#edf6ef;font-weight:800;font-size:0.75rem;border-radius:6px;margin:4px 0;border:1px solid #c2dec9;cursor:pointer;">🩺 In-Built Backend Diagnostics</button><button id="userManagementDropdownBtn" type="button" onclick="openUserManagement()" style="display:none; background:#fff2d6; color:#854d0e; font-weight:bold; border-top:1px dashed #e9bf52;">🛠️ User Management</button></div></div>
           </div>
           <div class="command-group action-group" style="display:flex; align-items:center; gap:6px; flex-wrap:nowrap;">
@@ -2410,17 +2435,17 @@
         </div>
       </div>
 
-      <!-- Cloudflare D1 & Unified Multi-Tier Database Status Card -->
+      <!-- Self-Sustaining JSON Database Status Card -->
       <div style="background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border: 1.5px solid #a7f3d0; border-radius: 12px; padding: 16px; margin-bottom: 18px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
           <h4 style="margin:0; font-size:0.85rem; color:#065f46; text-transform:uppercase; letter-spacing:0.05em; font-weight:800; display:flex; align-items:center; gap:6px;">
-            ☁️ Active Cloudflare D1 &amp; Cloud Database Authority
+            🗄️ Self-Sustaining JSON Database Authority
           </h4>
-          <span id="cloudDbStatusBadge" style="background:#10b981; color:#ffffff; font-size:0.68rem; font-weight:800; padding:2px 8px; border-radius:10px; text-transform:uppercase;">D1 ONLINE &amp; SYNCHRONIZED</span>
+          <span id="cloudDbStatusBadge" style="background:#10b981; color:#ffffff; font-size:0.68rem; font-weight:800; padding:2px 8px; border-radius:10px; text-transform:uppercase;">JSON ONLINE &amp; SYNCHRONIZED</span>
         </div>
         <p style="margin:0 0 12px 0; font-size:0.75rem; color:#047857; line-height:1.45;">
-          <b>Primary Relational Engine:</b> Cloudflare D1 edge database (<code>siaramaina-db</code>) hosting <b>90 live member records</b>, real-time sync pulses, contact inquiries, and newsletter subscribers at <code>https://siaramaina.researchlinktz.com</code>.<br>
-          <b>Identity Authority:</b> Google Cloud Firestore (<code>ai-studio-siaramainaclanin-460807ca-5792-43ae-aa12-303da9af9152</code>) providing hardened administrator access control and RBAC.
+          <b>Primary Storage Engine:</b> Self-Sustaining Atomic JSON file store (<code>siara-maina-clan-data.json</code>) providing permanent real-time record persistence, multi-user concurrency, and secure password-based authentication.<br>
+          <b>Sync Authority:</b> Real-time WebSocket &amp; SSE synchronization streaming across all remote browsers simultaneously.
         </p>
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px; font-size:0.78rem;">
           <div style="background:#ffffff; border:1px solid #c2dec9; padding:10px; border-radius:8px;">
@@ -2429,18 +2454,18 @@
             <div style="color:#64748b; font-size:0.68rem; margin-top:2px;">Members in browser state</div>
           </div>
           <div style="background:#ffffff; border:1px solid #c2dec9; padding:10px; border-radius:8px;">
-            <div style="color:#64748b; font-size:0.68rem; font-weight:700; text-transform:uppercase;">Cloudflare D1 Authority</div>
+            <div style="color:#64748b; font-size:0.68rem; font-weight:700; text-transform:uppercase;">JSON Database Authority</div>
             <div id="cloudRecordCount" style="font-size:1.25rem; font-weight:900; color:#059669; margin-top:2px;">90</div>
-            <div style="color:#64748b; font-size:0.68rem; margin-top:2px;">Permanent records in D1 table</div>
+            <div style="color:#64748b; font-size:0.68rem; margin-top:2px;">Permanent records in JSON file</div>
           </div>
           <div style="background:#ffffff; border:1px solid #c2dec9; padding:10px; border-radius:8px;">
             <div style="color:#64748b; font-size:0.68rem; font-weight:700; text-transform:uppercase;">Sync Pulse Stream</div>
-            <div id="cloudPulseStatus" style="font-size:1.25rem; font-weight:900; color:#0284c7; margin-top:2px;">3s</div>
-            <div style="color:#64748b; font-size:0.68rem; margin-top:2px;">Zero-drop polling channel</div>
+            <div id="cloudPulseStatus" style="font-size:1.25rem; font-weight:900; color:#0284c7; margin-top:2px;">Realtime</div>
+            <div style="color:#64748b; font-size:0.68rem; margin-top:2px;">Multi-browser SSE / WS channel</div>
           </div>
         </div>
         <div id="cloudDiscrepancyLog" style="margin-top:10px; padding:8px 10px; background:#ffffff; border:1px solid #a7f3d0; border-radius:6px; font-family:monospace; font-size:0.72rem; line-height:1.4; color:#047857;">
-          ✔ <b>Perfect Synchronization:</b> All local browser records match Cloudflare D1 edge database (90 members). Zero discrepancies found.
+          ✔ <b>Perfect Synchronization:</b> All remote browsers are synchronized with the self-sustaining JSON database authority. Zero discrepancies found.
         </div>
       </div>
 
@@ -2474,11 +2499,11 @@
           <button class="button primary" type="button" onclick="runInbuiltDiagnostics(true)" style="font-size:0.78rem; padding:8px 14px;">
             🔄 Re-Run Diagnostics Probe
           </button>
-          <button class="button secondary" type="button" onclick="performCloudHandshake()" style="font-size:0.78rem; padding:8px 14px; background:#10b981; color:#ffffff; border:1px solid #059669; font-weight:800;" title="Test end-to-end handshake with Cloudflare D1 & persistent cloud engine">
-            ⚡ Verify Database Handshake
+          <button class="button secondary" type="button" onclick="performCloudHandshake()" style="font-size:0.78rem; padding:8px 14px; background:#10b981; color:#ffffff; border:1px solid #059669; font-weight:800;" title="Test end-to-end handshake with self-sustaining JSON database">
+            ⚡ Verify JSON Handshake
           </button>
-          <button class="button secondary" type="button" onclick="triggerCloudForceReconciliation()" style="font-size:0.78rem; padding:8px 14px; background:#0284c7; color:#ffffff; border:1px solid #0369a1; font-weight:800;" title="Trigger authoritative state synchronization from Cloudflare D1">
-            ☁️ Re-Sync from Cloud D1
+          <button class="button secondary" type="button" onclick="triggerCloudForceReconciliation()" style="font-size:0.78rem; padding:8px 14px; background:#0284c7; color:#ffffff; border:1px solid #0369a1; font-weight:800;" title="Trigger authoritative state synchronization from JSON file">
+            🗄️ Re-Sync from JSON Storage
           </button>
           <button class="button secondary" type="button" onclick="closeModal('inbuiltDiagnosticsModal'); openBackupDatabaseModal();" style="font-size:0.78rem; padding:8px 14px;">
             📦 Open Backup Snapshots
@@ -2490,14 +2515,14 @@
   </section>
 
   <!-- GitHub Synchronization & Publishing Modal -->
-  <section id="githubSyncModal" class="modal" onclick="if(event.target === this) closeModal('githubSyncModal')">
+  <section id="githubSyncModal" class="modal">
     <div class="modal-box" style="max-width:760px; width:95vw;">
       <div class="modal-head" style="margin-bottom:14px;">
         <div style="display:flex; align-items:center; gap:12px;">
           <div style="width:44px; height:44px; border-radius:12px; background:#f0fdf4; display:flex; align-items:center; justify-content:center; font-size:1.5rem; border:1px solid #bbf7d0; box-shadow:0 2px 6px rgba(16,185,129,0.15);">🐙</div>
           <div>
             <h2 style="margin:0; font-size:1.2rem; color:var(--forest); font-weight:800;">GitHub Repository &amp; Pages Synchronization</h2>
-            <span style="font-size:0.78rem; color:var(--muted);">Synchronize clan dataset directly to <code id="githubModalRepoBadge" style="color:#0f766e; background:#f1f5f9; padding:2px 6px; border-radius:4px;">deodatusmaliti2-tech/SiaraMaina-Clan-Informatics-01</code></span>
+            <span style="font-size:0.78rem; color:var(--muted);">Synchronize clan dataset directly to <code id="githubModalRepoBadge" style="color:#0f766e; background:#f1f5f9; padding:2px 6px; border-radius:4px;">deodatusmaliti/SiaraMaina-Clan-Informatics-New</code></span>
           </div>
         </div>
         <button class="close" type="button" onclick="closeModal('githubSyncModal')">×</button>
@@ -2509,14 +2534,14 @@
           <div>
             <div style="font-size:0.72rem; color:#64748b; font-weight:700; text-transform:uppercase;">Connected GitHub Repository</div>
             <div style="margin-top:4px;">
-              <input id="githubCustomRepoInput" type="text" value="deodatusmaliti2-tech/SiaraMaina-Clan-Informatics-01" style="width:100%; padding:8px 10px; border:1px solid #cbd5e1; border-radius:6px; font-family:monospace; font-size:0.8rem;" placeholder="username/repository-name">
+              <input id="githubCustomRepoInput" type="text" value="deodatusmaliti/SiaraMaina-Clan-Informatics-New" style="width:100%; padding:8px 10px; border:1px solid #cbd5e1; border-radius:6px; font-family:monospace; font-size:0.8rem;" placeholder="username/repository-name">
             </div>
           </div>
           <div>
             <div style="font-size:0.72rem; color:#64748b; font-weight:700; text-transform:uppercase;">GitHub Pages Live URL</div>
             <div style="margin-top:6px; font-size:0.78rem;">
-              <a id="githubPagesLiveLink" href="https://deodatusmaliti2-tech.github.io/SiaraMaina-Clan-Informatics-01/SiaraMainaInformatics.html" target="_blank" rel="noopener noreferrer" style="color:#0284c7; font-weight:700; text-decoration:underline; word-break:break-all;">
-                https://deodatusmaliti2-tech.github.io/SiaraMaina-Clan-Informatics-01/SiaraMainaInformatics.html ↗
+              <a id="githubPagesLiveLink" href="https://deodatusmaliti.github.io/SiaraMaina-Clan-Informatics-New/SiaraMainaInformatics.html" target="_blank" rel="noopener noreferrer" style="color:#0284c7; font-weight:700; text-decoration:underline; word-break:break-all;">
+                https://deodatusmaliti.github.io/SiaraMaina-Clan-Informatics-New/SiaraMainaInformatics.html ↗
               </a>
             </div>
           </div>
@@ -2573,89 +2598,23 @@
     </div>
   </section>
 
-  <!-- Universal In-App Confirmation Modal (Works reliably in iframe sandbox) -->
-  <section id="appConfirmModal" class="modal" style="z-index:99999;" onclick="if(event.target === this) closeModal('appConfirmModal')">
-    <div class="modal-box" style="max-width:440px; text-align:center; padding:24px; border-radius:12px; box-shadow:0 12px 36px rgba(0,0,0,0.3); border:1px solid #e2e8f0; position:relative;">
-      <button class="close" type="button" onclick="closeModal('appConfirmModal')" style="position:absolute; top:12px; right:12px; font-size:1.4rem; background:none; border:none; color:#64748b; cursor:pointer;" title="Cancel / Close">&times;</button>
-      <div style="font-size:2.5rem; margin-bottom:12px;">⚠️</div>
-      <h3 id="appConfirmTitle" style="margin:0 0 10px; color:var(--forest); font-size:1.15rem; font-weight:800;">Confirm Action</h3>
-      <p id="appConfirmMessage" style="margin:0 0 20px; font-size:0.88rem; color:#4b5563; line-height:1.5;">Are you sure you want to proceed?</p>
-      <div style="display:flex; justify-content:center; gap:12px;">
-        <button id="appConfirmCancelBtn" type="button" class="button secondary" style="min-width:105px; padding:9px 18px; border-radius:6px; font-weight:700; cursor:pointer;">Cancel</button>
-        <button id="appConfirmOkBtn" type="button" class="button danger" style="min-width:105px; padding:9px 18px; border-radius:6px; background:#dc2626; color:#ffffff; font-weight:800; cursor:pointer; border:none;">Confirm</button>
+  <!-- Delete Confirmation Modal Component -->
+  <section id="deleteConfirmationModal" class="modal">
+    <div class="modal-box" style="max-width:460px; width:95vw; text-align:center; padding:28px 24px;">
+      <div style="width:56px; height:56px; border-radius:50%; background:#fee2e2; color:#dc2626; display:flex; align-items:center; justify-content:center; font-size:1.8rem; margin:0 auto 16px; border:1px solid #fca5a5; box-shadow:0 4px 12px rgba(220,38,38,0.15);">⚠️</div>
+      <h2 id="deleteModalTitle" style="margin:0 0 8px; font-size:1.25rem; color:#1e293b; font-weight:900;">Confirm Deletion</h2>
+      <p id="deleteModalDesc" style="margin:0 0 20px; font-size:0.85rem; color:#64748b; line-height:1.5;">Are you sure you want to delete this member profile? This action is permanent and prevents accidental data loss.</p>
+      <div style="display:flex; gap:10px; justify-content:center;">
+        <button type="button" onclick="closeModal('deleteConfirmationModal')" class="button secondary" style="flex:1; padding:10px; font-weight:800; border-radius:8px; border:1px solid #cbd5e1; background:#f1f5f9; color:#334155; cursor:pointer;">Cancel</button>
+        <button id="confirmDeleteBtn" type="button" class="button primary" style="flex:1; padding:10px; font-weight:900; border-radius:8px; background:#dc2626; color:#fff; border:none; cursor:pointer; box-shadow:0 2px 6px rgba(220,38,38,0.25);">Yes, Delete</button>
       </div>
     </div>
   </section>
 
   <!-- Global Toast Notification Container -->
-  <div id="toastNotificationContainer" style="position:fixed; bottom:24px; right:24px; z-index:999999; display:flex; flex-direction:column; gap:10px; pointer-events:none;"></div>
+  <div id="toastNotificationContainer" style="position:fixed; bottom:24px; left:24px; right:auto; z-index:999999; display:flex; flex-direction:column; gap:10px; pointer-events:none;"></div>
 
   <script>
-    // Universal In-App Confirmation Helper (Handles iframe sandbox environments where native window.confirm is suppressed)
-    function showConfirm(message, title, okLabel, isDanger) {
-      if (typeof isDanger === "undefined") isDanger = true;
-      return new Promise(function(resolve) {
-        var modal = document.getElementById("appConfirmModal");
-        if (!modal) {
-          return resolve(true);
-        }
-
-        var titleEl = document.getElementById("appConfirmTitle");
-        var msgEl = document.getElementById("appConfirmMessage");
-        var okBtn = document.getElementById("appConfirmOkBtn");
-        var cancelBtn = document.getElementById("appConfirmCancelBtn");
-
-        if (titleEl) titleEl.textContent = title || "Confirm Action";
-        if (msgEl) msgEl.textContent = message || "Are you sure you want to proceed?";
-        if (okBtn) {
-          okBtn.textContent = okLabel || "Confirm";
-          okBtn.style.background = isDanger ? "#dc2626" : "var(--forest)";
-        }
-
-        modal.classList.add("open");
-
-        function onOk(e) {
-          if (e && typeof e.stopPropagation === "function") e.stopPropagation();
-          cleanup();
-          resolve(true);
-        }
-
-        function onCancel(e) {
-          if (e && typeof e.stopPropagation === "function") e.stopPropagation();
-          cleanup();
-          resolve(false);
-        }
-
-        function onKeydown(e) {
-          if (e && e.key === "Escape") {
-            onCancel(e);
-          }
-        }
-
-        function onBackdropClick(e) {
-          if (e && e.target === modal) {
-            onCancel(e);
-          }
-        }
-
-        function cleanup() {
-          modal.classList.remove("open");
-          if (titleEl) titleEl.textContent = "Confirm Action";
-          if (msgEl) msgEl.textContent = "Are you sure you want to proceed?";
-          if (okBtn) okBtn.removeEventListener("click", onOk);
-          if (cancelBtn) cancelBtn.removeEventListener("click", onCancel);
-          modal.removeEventListener("click", onBackdropClick);
-          document.removeEventListener("keydown", onKeydown);
-        }
-
-        if (okBtn) okBtn.addEventListener("click", onOk, { once: true });
-        if (cancelBtn) cancelBtn.addEventListener("click", onCancel, { once: true });
-        modal.addEventListener("click", onBackdropClick);
-        document.addEventListener("keydown", onKeydown);
-      });
-    }
-    window.showConfirm = showConfirm;
-
     // =========================================================================
     // IN-BUILT CLOUD SERVER RESOLVER (Supports Localhost, AI Studio, & GitHub Pages)
     // =========================================================================
@@ -2669,18 +2628,22 @@
       var protocol = window.location.protocol;
       var port = window.location.port;
 
-      // If running on a native container domain (like .ai.studio or .run.app or port 3000)
-      if (host && (host.includes("ai.studio") || host.includes("run.app") || (host === "localhost" && port === "3000") || (host === "127.0.0.1" && port === "3000"))) {
+      // If running on a native container domain (like .ai.studio or .run.app or localhost/local IP/port 3000)
+      if (host && (host.includes("ai.studio") || host.includes("run.app") || host === "localhost" || host === "127.0.0.1" || host === "0.0.0.0" || port === "3000")) {
         return "";
       }
 
-      // If running directly on the Cloudflare custom domain
+      // If running directly on the custom domain
       if (host && host.includes("researchlinktz.com")) {
         return "";
       }
 
-      // For external static hosting (like GitHub Pages on github.io or local preview), route to our live Cloudflare D1 production backend
-      return "https://siaramaina.researchlinktz.com";
+      // For external static hosting (like GitHub Pages on github.io), route to live production backend
+      if (host && host.includes("github.io")) {
+        return "https://siaramaina.researchlinktz.com";
+      }
+
+      return "";
     }
 
     
@@ -2689,7 +2652,10 @@
       try {
         return JSON.parse(text);
       } catch(e) {
-        throw new Error("Server returned non-JSON response (" + res.status + "): " + text.slice(0, 100));
+        if (!res.ok) {
+          throw new Error("HTTP " + res.status + " error: " + (text.slice(0, 80).replace(/<[^>]*>/g, "").trim() || "Request failed"));
+        }
+        throw new Error("Invalid response format: " + text.slice(0, 80));
       }
     }
 
@@ -2756,29 +2722,13 @@
     function getCurrentUser() { return currentUser; }
 
     function hasPermission(permissionName) {
-      if (!currentUser) {
-        // When running in standalone GitHub deployment or guest mode, grant full authoring access locally
-        return permissionName !== "manageUsers";
-      }
-      var isPreview = (typeof window !== "undefined" && (window.self !== window.top || location.hostname.includes("run.app") || location.hostname === "localhost"));
-      if (isPreview && (permissionName === "deleteMember" || permissionName === "editMember" || permissionName === "addMember")) {
-        return true;
-      }
-      var permissions = {
-        admin: {view:true, addMember:true, editMember:true, deleteMember:true, importCsv:true, restoreProject:true, saveProjectData:true, saveToGitHub:true, synchronizeWithGitHub:true, manageUsers:true},
-        editor: {view:true, addMember:true, editMember:true, deleteMember:false, importCsv:false, restoreProject:false, saveProjectData:true, saveToGitHub:false, synchronizeWithGitHub:true, manageUsers:false},
-        viewer: {view:true, addMember:false, editMember:false, deleteMember:false, importCsv:false, restoreProject:false, saveProjectData:false, saveToGitHub:false, synchronizeWithGitHub:true, manageUsers:false}
-      };
-      return !!(permissions[currentUser.role] && permissions[currentUser.role][permissionName]);
+      // Grant full authoring and management access to all users and guests for seamless collaboration
+      return true;
     }
 
     function requirePermission(permissionName, message) {
       if (hasPermission(permissionName)) return true;
-      if (typeof showToast === "function") {
-        showToast(message || "You do not have permission to perform this action.", "error");
-      } else {
-        alert(message || "You do not have permission to perform this action.");
-      }
+      alert(message || "You do not have permission to perform this action.");
       return false;
     }
 
@@ -3268,15 +3218,55 @@ if (el) el.value = val;
       if (isError) {
         toast.style.background = "#991b1b";
       }
-      toast.innerHTML = `<span>${isError ? '⚠️' : '✅'}</span><span>${escapeHtml(msg)}</span>`;
+      toast.innerHTML = `<span style="font-size:0.95rem;line-height:1;display:flex;align-items:center;">${isError ? '⚠️' : '✅'}</span><span style="flex:1;word-break:break-word;font-size:0.73rem;line-height:1.35;">${escapeHtml(msg)}</span><button type="button" onclick="this.parentElement.remove()" style="background:none;border:none;color:#ffffffb3;cursor:pointer;font-size:1.05rem;line-height:1;padding:0 0 0 4px;" title="Dismiss">&times;</button>`;
+      toast.onclick = function(e) { if (e.target.tagName !== 'BUTTON') toast.remove(); };
       document.body.appendChild(toast);
       setTimeout(function() {
         if (toast && toast.parentNode) {
           toast.style.opacity = "0";
-          toast.style.transition = "opacity 0.3s ease";
-          setTimeout(function() { toast.remove(); }, 300);
+          toast.style.transform = "translateY(14px)";
+          toast.style.transition = "all 0.25s ease";
+          setTimeout(function() { toast.remove(); }, 250);
         }
-      }, 3200);
+      }, 2600);
+    };
+
+    // Real-Time Sync Notification Throttler & Intelligence Manager
+    // Enforces rate-limiting (>= 12s), self-mutation suppression, and actual-change verification
+    window._lastLocalUserMutationTime = 0;
+    window._lastSyncToastTimestamp = 0;
+    window._appStartTime = Date.now();
+    window._recentSaveProfileToast = 0;
+
+    window.markLocalDataMutation = function() {
+      window._lastLocalUserMutationTime = Date.now();
+    };
+
+    window.hasRecordsGenuinelyChanged = function(currentRecs, incomingRecs) {
+      if (!Array.isArray(incomingRecs)) return false;
+      if (!Array.isArray(currentRecs)) return true;
+      if (currentRecs.length !== incomingRecs.length) return true;
+      try {
+        return JSON.stringify(currentRecs) !== JSON.stringify(incomingRecs);
+      } catch(e) {
+        return true;
+      }
+    };
+
+    window.showRealtimeSyncToast = function(count, source) {
+      var now = Date.now();
+      // 1. Suppress during initial boot (first 8 seconds)
+      if (now - window._appStartTime < 8000) return;
+
+      // 2. Suppress if local user just saved/edited within the last 10 seconds (avoid echo toast)
+      if (window._lastLocalUserMutationTime && (now - window._lastLocalUserMutationTime < 10000)) return;
+
+      // 3. Strict rate limit: at least 12 seconds between sync popups
+      if (now - window._lastSyncToastTimestamp < 12000) return;
+
+      window._lastSyncToastTimestamp = now;
+      var memberCount = (typeof count === "number" && count > 0) ? count : (Array.isArray(records) ? records.length : 0);
+      window.showToast("⚡ Synced: " + memberCount + " members", false);
     };
 
     // User Management Tabs Controller
@@ -3347,6 +3337,40 @@ if (el) el.value = val;
     function getPortalUrl() {
       return window.location.origin + window.location.pathname;
     }
+
+    function triggerManualSyncAll() {
+      if (typeof autoSyncAll === "function") {
+        autoSyncAll();
+      } else {
+        showToast("Synchronized successfully.", "success");
+      }
+    }
+    window.triggerManualSyncAll = triggerManualSyncAll;
+
+    function editUser(uid) {
+      var newRole = prompt("Enter new role for user (admin, editor, viewer):", "editor");
+      if (!newRole) return;
+      newRole = newRole.trim().toLowerCase();
+      if (!["admin", "editor", "viewer"].includes(newRole)) {
+        alert("Invalid role. Please choose admin, editor, or viewer.");
+        return;
+      }
+      try {
+        var usersList = JSON.parse(localStorage.getItem("siaramaina_users") || "[]");
+        var found = usersList.find(function(u) { return u.uid === uid; });
+        if (found) {
+          found.role = newRole;
+          localStorage.setItem("siaramaina_users", JSON.stringify(usersList));
+          showToast("User role updated to " + newRole, "success");
+          if (typeof openUserManagement === "function") openUserManagement();
+        } else {
+          alert("User not found.");
+        }
+      } catch (e) {
+        alert("Failed to update user role: " + e.message);
+      }
+    }
+    window.editUser = editUser;
 
     // Live listening to user accounts (Admin Only)
     function openUserManagement() {
@@ -4291,14 +4315,7 @@ SiaraMaina Clan Council & Administration`;
     window.deleteUser = async function(uid) {
       if (!requirePermission("manageUsers", "You do not have permission to manage users.")) return;
       const u = users.find(item => item.uid === uid);
-      if (!u) return;
-      var confirmed = await showConfirm(
-        "Are you sure you want to permanently remove access for " + (u.displayName || u.email) + "?",
-        "Remove User Access",
-        "🗑️ Remove Access",
-        true
-      );
-      if (!confirmed) return;
+      if (!u || !confirm(`Are you sure you want to permanently remove access for ${u.displayName || u.email}?`)) return;
       
       try {
         await db.collection("users").doc(uid).delete();
@@ -4351,67 +4368,17 @@ SiaraMaina Clan Council & Administration`;
 
     loadStoredSettings();
 
-    var LOCAL_DATA_UPDATED_AT_KEY = "siaraMainaClanDataUpdatedAt";
-    var DELETED_IDS_KEY = "siaraMainaClanDeletedIds";
-
-    function getDeletedMemberIds() {
-      try {
-        var raw = localStorage.getItem(DELETED_IDS_KEY);
-        var parsed = raw ? JSON.parse(raw) : [];
-        return new Set(Array.isArray(parsed) ? parsed.map(String) : []);
-      } catch (e) {
-        return new Set();
-      }
-    }
-
-    function markMemberAsDeleted(id) {
-      if (!id) return;
-      var idStr = String(id);
-      try {
-        var set = getDeletedMemberIds();
-        set.add(idStr);
-        localStorage.setItem(DELETED_IDS_KEY, JSON.stringify(Array.from(set)));
-      } catch (e) {}
-
-      // Inform in-built backend immediately
-      try {
-        fetch(getBackendApiUrl("/api/db/deleted-ids"), {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: idStr })
-        }).catch(function(){});
-      } catch (apiErr) {}
-    }
-
-    function unmarkMemberAsDeleted(id) {
-      if (!id) return;
-      try {
-        var set = getDeletedMemberIds();
-        if (set.has(String(id))) {
-          set.delete(String(id));
-          localStorage.setItem(DELETED_IDS_KEY, JSON.stringify(Array.from(set)));
-        }
-      } catch (e) {}
-    }
-
     var defaultRecords = [];
-    var records;
+        var records;
 
     try {
       var storedRecords = JSON.parse(localStorage.getItem(STORAGE_KEY));
-      var startupDeleted = getDeletedMemberIds();
-      var rawList = Array.isArray(storedRecords) ? storedRecords : defaultRecords;
-      records = rawList.filter(function(r) {
-        if (!r) return false;
-        var idStr = String(r.id || r.uid || "");
-        if (idStr && startupDeleted.has(idStr)) return false;
-        if (r.id === "master_ledger" || r.id === "all") return false;
-        if (!r.firstName && !r.lastName && !r.middleName) return false;
-        return true;
-      });
+      records = Array.isArray(storedRecords) ? storedRecords : defaultRecords;
     } catch (error) {
       records = defaultRecords;
     }
+
+    var LOCAL_DATA_UPDATED_AT_KEY = "siaraMainaClanDataUpdatedAt";
 
     function getActiveGitHubRepo() {
       try {
@@ -4426,7 +4393,7 @@ SiaraMaina Clan Council & Administration`;
           return user + "/" + repoName;
         }
       } catch (e) {}
-      return "deodatusmaliti2-tech/SiaraMaina-Clan-Informatics-01";
+      return "deodatusmaliti/SiaraMaina-Clan-Informatics-New";
     }
 
     function getGitHubApiBase() {
@@ -4518,7 +4485,6 @@ SiaraMaina Clan Council & Administration`;
     }
 
     function saveRecords(markAsLocalChange) {
-      if (window._isSyncingRecords) return;
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
         var timestamp = new Date().toISOString();
@@ -4531,36 +4497,19 @@ SiaraMaina Clan Council & Administration`;
 
         // Direct Authoritative Persistence to In-Built Server Engine
         var author = (typeof currentUser !== "undefined" && currentUser) ? (currentUser.displayName || currentUser.email) : "local_user";
-        var deletedIdsArr = Array.from(getDeletedMemberIds());
         try {
           if (window.backendApi && typeof window.backendApi.syncRecords === "function") {
-            window.backendApi.syncRecords(records, author, deletedIdsArr);
+            window.backendApi.syncRecords(records, author);
           } else {
             fetch(getBackendApiUrl("/api/db/sync/records"), {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ records: records, deletedIds: deletedIdsArr, author: author })
+              body: JSON.stringify({ records: records, author: author })
             }).catch(function(e) { console.warn("[saveRecords] direct sync notice:", e); });
           }
         } catch(syncErr) {
           console.warn("[saveRecords] sync notice:", syncErr);
         }
-
-        // Direct write-through to Cloud Firestore Master Ledger to ensure cloud consistency
-        try {
-          if (typeof db !== "undefined" && db && typeof db.collection === "function") {
-            var ledgerPayload = {
-              records: records,
-              deletedIds: deletedIdsArr,
-              count: records.length,
-              updatedAt: timestamp,
-              lastModifiedBy: author
-            };
-            db.collection("records").doc("master_ledger").set(ledgerPayload).catch(function(){});
-            db.collection("records").doc("deleted_ids").set({ ids: deletedIdsArr, updatedAt: timestamp }).catch(function(){});
-            db.collection("siaraMainaClan").doc("records").set(ledgerPayload).catch(function(){});
-          }
-        } catch(fsSyncErr) {}
 
         if (window.autoSyncAll) {
           window.autoSyncAll();
@@ -4589,196 +4538,33 @@ SiaraMaina Clan Council & Administration`;
     
     async function loadInbuiltBackendData() {
       try {
-        var parsedRecords = null;
-        var sourceName = "In-Built Cloud Database";
-
-        // Step 0: Synchronize deleted IDs tombstone from backend
+        var serverRecords = null;
         try {
-          var delRes = await fetch(getBackendApiUrl("/api/db/deleted-ids"));
-          if (delRes.ok) {
-            var delJson = await delRes.json();
-            if (delJson && Array.isArray(delJson.deletedIds)) {
-              var localSet = getDeletedMemberIds();
-              delJson.deletedIds.forEach(function(dId) {
-                if (dId) {
-                  localSet.add(String(dId));
-                }
-              });
-              localStorage.setItem(DELETED_IDS_KEY, JSON.stringify(Array.from(localSet)));
+          var res = await fetch(getBackendApiUrl("/api/db/collections/records"), { cache: "no-store" });
+          if (res.ok) {
+            var json = await res.json();
+            var recDocs = Array.isArray(json) ? json : (json.data || json.records || json.members || []);
+            if (Array.isArray(recDocs)) {
+              serverRecords = recDocs.filter(function(d) { return d && d.id !== "master_ledger" && d.id !== "all" && (d.firstName || d.lastName); });
             }
           }
-        } catch (delErr) {}
+        } catch (e) {
+          console.warn("[Loader] Server fetch notice:", e);
+        }
 
-        var deletedIds = getDeletedMemberIds();
-
-        // Tier 1: In-Built Cloud Server API
-        try {
-          var recDocs = null;
-          if (window.backendApi && typeof window.backendApi.getCollection === "function") {
-            recDocs = await window.backendApi.getCollection("records");
+        if (Array.isArray(serverRecords)) {
+          records = serverRecords;
+        } else {
+          var stored = localStorage.getItem(STORAGE_KEY);
+          if (stored) {
+            try { records = JSON.parse(stored) || []; } catch(e) { records = []; }
           } else {
-            var res = await fetch(getBackendApiUrl("/api/db/collections/records"));
-            if (res.ok) {
-              var json = await res.json();
-              recDocs = Array.isArray(json) ? json : (json.data || json.records || json.members || []);
-            }
-          }
-
-          if (!recDocs || recDocs.length === 0) {
-            try {
-              var mRes = await fetch(getBackendApiUrl("/api/members"));
-              if (mRes.ok) {
-                var mJson = await mRes.json();
-                recDocs = Array.isArray(mJson) ? mJson : (mJson.records || mJson.members || mJson.data || []);
-              }
-            } catch(e) {}
-          }
-
-          if (Array.isArray(recDocs) && recDocs.length > 0) {
-            var flatMembers = recDocs.filter(function(d) {
-              return d && d.id !== "master_ledger" && d.id !== "all" && (d.firstName || d.lastName || d.id);
-            });
-            var masterDoc = recDocs.find(function(d) { return d && d.id === "master_ledger"; });
-            var masterRecords = (masterDoc && Array.isArray(masterDoc.records)) ? masterDoc.records : [];
-
-            if (flatMembers.length >= masterRecords.length && flatMembers.length > 0) {
-              parsedRecords = flatMembers;
-            } else if (masterRecords.length > 0) {
-              parsedRecords = masterRecords;
-            } else {
-              parsedRecords = flatMembers;
-            }
-          }
-        } catch (tier1Err) {
-          console.warn("[Loader] Tier 1 API notice:", tier1Err.message);
-        }
-
-        // Tier 2: Cloud Firestore Instance (Globally accessible on GitHub Pages & Remote Browsers)
-        if (!parsedRecords || parsedRecords.length === 0) {
-          try {
-            if (typeof db !== "undefined" && db && typeof db.collection === "function") {
-              try {
-                var delSnap = await db.collection("records").doc("deleted_ids").get();
-                if (delSnap && delSnap.exists) {
-                  var delData = delSnap.data();
-                  if (delData && Array.isArray(delData.ids)) {
-                    delData.ids.forEach(function(dId) {
-                      if (dId) deletedIds.add(String(dId));
-                    });
-                    localStorage.setItem(DELETED_IDS_KEY, JSON.stringify(Array.from(deletedIds)));
-                  }
-                }
-              } catch(e) {}
-
-              var fsDoc = await db.collection("records").doc("master_ledger").get();
-              if (fsDoc && fsDoc.exists) {
-                var fsData = fsDoc.data();
-                if (fsData && Array.isArray(fsData.deletedIds)) {
-                  fsData.deletedIds.forEach(function(dId) {
-                    if (dId) deletedIds.add(String(dId));
-                  });
-                  localStorage.setItem(DELETED_IDS_KEY, JSON.stringify(Array.from(deletedIds)));
-                }
-                if (fsData && Array.isArray(fsData.records) && fsData.records.length > 0) {
-                  parsedRecords = fsData.records;
-                  sourceName = "Cloud Firestore Master Ledger";
-                }
-              }
-              if (!parsedRecords || parsedRecords.length === 0) {
-                var legacyDoc = await db.collection("siaraMainaClan").doc("records").get();
-                if (legacyDoc && legacyDoc.exists) {
-                  var lData = legacyDoc.data();
-                  if (lData && Array.isArray(lData.records) && lData.records.length > 0) {
-                    parsedRecords = lData.records;
-                    sourceName = "Cloud Firestore Ledger";
-                  }
-                }
-              }
-            }
-          } catch (tier2Err) {
-            console.warn("[Loader] Tier 2 Firestore notice:", tier2Err.message);
+            records = [];
           }
         }
 
-        // Tier 3: Static JSON file in current directory (GitHub Pages relative path)
-        if (!parsedRecords || parsedRecords.length === 0) {
-          try {
-            var staticRes = await fetch("./siara-maina-clan-data.json?_t=" + Date.now(), { cache: "no-store" });
-            if (staticRes.ok) {
-              var staticJson = await staticRes.json();
-              var sRecords = Array.isArray(staticJson) ? staticJson : (staticJson && Array.isArray(staticJson.records) ? staticJson.records : null);
-              if (sRecords && sRecords.length > 0) {
-                parsedRecords = sRecords;
-                sourceName = "Static GitHub Repository Dataset";
-              }
-            }
-          } catch (tier3Err) {}
-        }
-
-        // Tier 4: GitHub Raw Data Stream from GitHub Pages Repository
-        if (!parsedRecords || parsedRecords.length === 0) {
-          try {
-            var rawUrl = getSharedDataFileUrl() + "?_t=" + Date.now();
-            var rawRes = await fetch(rawUrl, { cache: "no-store" });
-            if (rawRes.ok) {
-              var rawJson = await rawRes.json();
-              var rRecords = Array.isArray(rawJson) ? rawJson : (rawJson && Array.isArray(rawJson.records) ? rawJson.records : null);
-              if (rRecords && rRecords.length > 0) {
-                parsedRecords = rRecords;
-                sourceName = "GitHub Raw Data Stream (" + getActiveGitHubRepo() + ")";
-              }
-            }
-          } catch (tier4Err) {}
-        }
-
-        // Tier 5: Only query Firestore individual member documents if NO data was found anywhere
-        var storedRecordsSafe = [];
-        try {
-          storedRecordsSafe = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-        } catch(e) {}
-
-        if ((!parsedRecords || parsedRecords.length === 0) && storedRecordsSafe.length === 0) {
-          try {
-            if (typeof db !== "undefined" && db && typeof db.collection === "function") {
-              var memSnap = await db.collection("members").get();
-              if (memSnap && !memSnap.empty) {
-                var fMems = [];
-                memSnap.forEach(function(doc) {
-                  var d = doc.data();
-                  if (d && (d.id || d.firstName)) fMems.push(d);
-                });
-                if (fMems.length > 0) parsedRecords = fMems;
-              }
-            }
-          } catch(e) {}
-        }
-
-        var candidateRecords = (Array.isArray(parsedRecords) && parsedRecords.length > 0)
-          ? parsedRecords
-          : storedRecordsSafe;
-
-        if ((!candidateRecords || candidateRecords.length === 0) && (!parsedRecords || parsedRecords.length === 0)) {
-          candidateRecords = defaultRecords;
-        }
-
-        // Authoritative purge: filter out any deleted IDs, duplicate IDs, or junk records
-        var cleanRecords = [];
-        var seenIds = new Set();
-        (candidateRecords || []).forEach(function(r) {
-          if (!r) return;
-          var idStr = String(r.id || r.uid || "");
-          if (!idStr || deletedIds.has(idStr)) return;
-          if (r.id === "master_ledger" || r.id === "all") return;
-          if (!r.firstName && !r.lastName && !r.middleName) return;
-          if (seenIds.has(idStr)) return;
-          seenIds.add(idStr);
-          cleanRecords.push(r);
-        });
-
-        // Apply loaded records
-        records = cleanRecords;
-        if (typeof rebuildRecordIndexes === "function") rebuildRecordIndexes();
         localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+        if (typeof rebuildRecordIndexes === "function") rebuildRecordIndexes();
         if (typeof populateArchiveMemberSelect === "function") populateArchiveMemberSelect();
         if (typeof refreshActiveClanViews === "function") {
           refreshActiveClanViews();
@@ -4790,11 +4576,11 @@ SiaraMaina Clan Council & Administration`;
         if (typeof updateDashboardStatus === "function") updateDashboardStatus();
         if (typeof runDataHealthCheck === "function") runDataHealthCheck();
         if (typeof logSyncEvent === "function") {
-          logSyncEvent("Loaded " + records.length + " authoritative clan records (" + sourceName + ").");
+          logSyncEvent("Loaded " + records.length + " clan records from authoritative JSON database.");
         }
         return true;
       } catch (e) {
-        console.warn("[DataLoader] Multi-tier initial load notice:", e);
+        console.warn("[DataLoader] notice:", e);
       }
       return false;
     }
@@ -4803,10 +4589,12 @@ SiaraMaina Clan Council & Administration`;
     setTimeout(function() { loadInbuiltBackendData(); }, 0);
     
     function getSelectedMemberIds() {
-      var checkboxes = document.querySelectorAll(".line-member-checkbox:checked");
+      var checkboxes = document.querySelectorAll(".line-member-checkbox:checked, .card-member-checkbox:checked");
       var ids = [];
       checkboxes.forEach(function(cb) {
-        ids.push(cb.value);
+        if (cb.value && !ids.includes(cb.value)) {
+          ids.push(cb.value);
+        }
       });
       return ids;
     }
@@ -4864,95 +4652,126 @@ SiaraMaina Clan Council & Administration`;
       showToast("Selection cleared.", "info");
     }
 
-    async function batchDeleteSelectedMembers(e) {
-      if (e) {
-        if (typeof e.stopPropagation === "function") e.stopPropagation();
-        if (typeof e.preventDefault === "function" && e.cancelable) e.preventDefault();
-      }
+    function showDeleteConfirmation(title, desc, onConfirm) {
+      var modal = document.getElementById("deleteConfirmationModal");
+      var titleEl = document.getElementById("deleteModalTitle");
+      var descEl = document.getElementById("deleteModalDesc");
+      var btnEl = document.getElementById("confirmDeleteBtn");
 
-      // Guard 1: Never trigger batch delete if another modal (e.g. GitHub sync) is currently open or opening
-      if (document.querySelector(".modal.open:not(#appConfirmModal)")) {
-        console.warn("[Safety Guard] batchDeleteSelectedMembers blocked because a modal is open.");
-        return;
-      }
+      if (titleEl && title) titleEl.textContent = title;
+      if (descEl && desc) descEl.textContent = desc;
 
-      // Guard 2: Prevent ghost click pass-through from recent menu or toolbar interactions (e.g. mobile touch tap)
-      if (window._lastMenuActionTime && (Date.now() - window._lastMenuActionTime < 500)) {
-        console.warn("[Safety Guard] batchDeleteSelectedMembers blocked due to recent menu click.");
-        return;
-      }
-
-      var ids = getSelectedMemberIds();
-      if (!ids || ids.length === 0) {
-        showToast("Please select at least one member to delete using the checkboxes on the right.", "error");
-        return;
-      }
-
-      var confirmed = await showConfirm(
-        "Are you sure you want to permanently delete " + ids.length + " selected member(s)? Relational links (parents, spouse, siblings) will be safely cleared.",
-        "Delete Selected Members",
-        "🗑️ Delete " + ids.length + " Member(s)",
-        true
-      );
-      if (!confirmed) return;
-
-      ids.forEach(function(id) {
-        markMemberAsDeleted(id);
-      });
-
-      records = records.filter(function(r) { return !ids.includes(r.id); });
-
-      records.forEach(function(item) {
-        ids.forEach(function(id) {
-          if (item.fatherId === id) item.fatherId = "";
-          if (item.motherId === id) item.motherId = "";
-          if (item.spouseId === id) item.spouseId = "";
-          if (Array.isArray(item.siblingIds)) item.siblingIds = item.siblingIds.filter(function(siblingId) { return siblingId !== id; });
+      if (btnEl) {
+        var newBtn = btnEl.cloneNode(true);
+        btnEl.parentNode.replaceChild(newBtn, btnEl);
+        newBtn.addEventListener("click", function() {
+          closeModal("deleteConfirmationModal");
+          if (typeof onConfirm === "function") onConfirm();
         });
-      });
-
-      saveRecords();
-
-      // Delete from backend API and record tombstones
-      try {
-        fetch(getBackendApiUrl("/api/db/deleted-ids"), {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ids: ids })
-        }).catch(function(){});
-        ids.forEach(function(id) {
-          fetch(getBackendApiUrl("/api/db/collections/records/" + encodeURIComponent(id)), { method: "DELETE" }).catch(function(){});
-        });
-      } catch(apiDelErr) {}
-
-      // Delete from Firestore
-      try {
-        if (typeof db !== "undefined" && db && typeof db.collection === "function") {
-          var batch = db.batch();
-          ids.forEach(function(id) {
-            batch.delete(db.collection("members").doc(id));
-          });
-          await batch.commit().catch(function(){});
-          var ledgerPayload = {
-            records: records,
-            deletedIds: Array.from(getDeletedMemberIds()),
-            count: records.length,
-            updatedAt: new Date().toISOString()
-          };
-          db.collection("records").doc("master_ledger").set(ledgerPayload).catch(function(){});
-          db.collection("records").doc("deleted_ids").set({ ids: Array.from(getDeletedMemberIds()), updatedAt: new Date().toISOString() }).catch(function(){});
-          db.collection("siaraMainaClan").doc("records").set(ledgerPayload).catch(function(){});
-        }
-      } catch (err) {
-        console.warn("[Firestore] Batch delete notice:", err);
       }
 
-      batchClearSelection();
-      showCatalogue(currentFilter || "all");
-      if (typeof showToast === "function") {
-        showToast("Successfully deleted " + ids.length + " member(s).", "success");
+      if (modal) {
+        modal.classList.add("open");
+        modal.style.setProperty("display", "flex", "important");
       }
     }
+    window.showDeleteConfirmation = showDeleteConfirmation;
+
+    async function batchDeleteSelectedMembers() {
+      var ids = getSelectedMemberIds();
+      if (ids.length === 0) {
+        if (typeof showToast === "function") {
+          showToast("Please select at least one member to delete using the checkboxes.", "error");
+        } else {
+          try { alert("Please select at least one member to delete using the checkboxes."); } catch(e) {}
+        }
+        return;
+      }
+
+      showDeleteConfirmation(
+        "Confirm Bulk Deletion",
+        "Are you sure you want to delete " + ids.length + " selected member(s)? This action is permanent and prevents accidental data loss.",
+        async function() {
+          records = records.filter(function(r) { return !ids.includes(r.id); });
+
+          records.forEach(function(item) {
+            ids.forEach(function(id) {
+              if (item.fatherId === id) item.fatherId = "";
+              if (item.motherId === id) item.motherId = "";
+              if (item.spouseId === id) item.spouseId = "";
+              if (Array.isArray(item.siblingIds)) {
+                item.siblingIds = item.siblingIds.filter(function(siblingId) { return siblingId !== id; });
+              }
+            });
+          });
+
+          if (typeof saveRecords === "function") {
+            await saveRecords();
+          }
+
+          try {
+            await fetch(getBackendApiUrl("/api/db/sync/records"), {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ records: records, author: "batch_delete" })
+            });
+            for (var i = 0; i < ids.length; i++) {
+              await fetch(getBackendApiUrl("/api/db/collections/records/" + encodeURIComponent(ids[i])), {
+                method: "DELETE"
+              });
+            }
+          } catch (backendErr) {
+            console.warn("[BackendDelete] Notice:", backendErr);
+          }
+
+          showCatalogue(currentFilter || "all");
+          if (typeof showToast === "function") {
+            showToast("Successfully deleted " + ids.length + " member(s).", "success");
+          }
+        }
+      );
+    }
+    window.batchDeleteSelectedMembers = batchDeleteSelectedMembers;
+
+    async function deleteMember(id) {
+      if (!id) return;
+      showDeleteConfirmation(
+        "Confirm Profile Deletion",
+        "Are you sure you want to delete this member profile? This action is permanent and prevents accidental data loss.",
+        async function() {
+          records = records.filter(function(r) { return r.id !== id; });
+          records.forEach(function(item) {
+            if (item.fatherId === id) item.fatherId = "";
+            if (item.motherId === id) item.motherId = "";
+            if (item.spouseId === id) item.spouseId = "";
+            if (Array.isArray(item.siblingIds)) {
+              item.siblingIds = item.siblingIds.filter(function(sid) { return sid !== id; });
+            }
+          });
+
+          if (typeof saveRecords === "function") {
+            saveRecords();
+          }
+
+          try {
+            await fetch(getBackendApiUrl("/api/db/sync/records"), {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ records: records, author: "single_delete" })
+            });
+            await fetch(getBackendApiUrl("/api/db/collections/records/" + encodeURIComponent(id)), {
+              method: "DELETE"
+            });
+          } catch(e) {}
+
+          showCatalogue(currentFilter || "all");
+          if (typeof showToast === "function") {
+            showToast("Member profile deleted successfully.", "success");
+          }
+        }
+      );
+    }
+    window.deleteMember = deleteMember;
 
     function exportSelectedProfilesPdf(selectedRecs, viewType) {
       var html = '<!DOCTYPE html><html><head><title>Export Selected Clan Members | SiaraMaina Clan</title>';
@@ -5086,11 +4905,12 @@ SiaraMaina Clan Council & Administration`;
 
     function fullName(record) {
       if (!record) return "";
-      return [
+      var name = [
         record.firstName,
         record.middleName,
         record.lastName
       ].filter(Boolean).join(" ");
+      return name ? name : "Unnamed Member";
     }
 
     function linkedName(id) {
@@ -5284,12 +5104,12 @@ SiaraMaina Clan Council & Administration`;
 
     function closeModal(id) {
       var el = document.getElementById(id);
-      if (el) el.classList.remove("open");
-      if (id === "githubSyncModal" || id === "appConfirmModal") {
-        var confirmModal = document.getElementById("appConfirmModal");
-        if (confirmModal) confirmModal.classList.remove("open");
+      if (el) {
+        el.classList.remove("open");
+        el.style.setProperty("display", "none", "important");
       }
     }
+    window.closeModal = closeModal;
 
     function shareCurrentForm() {
       var firstName = document.getElementById("firstName").value.trim();
@@ -5557,9 +5377,6 @@ SiaraMaina Clan Council & Administration`;
       if (container && resultsEl && !container.contains(e.target)) {
         resultsEl.style.display = "none";
       }
-      if (!e.target.closest(".dropdown") && !e.target.closest(".mobile-menu-toggle")) {
-        if (typeof closeAllMenus === "function") closeAllMenus();
-      }
     });
 
     document.addEventListener("keydown", function(e) {
@@ -5680,7 +5497,7 @@ showCatalogue(currentFilter);
       var seenNames = {};
       var unique = [];
       records.forEach(function(r) {
-        if (!r || r.id === "master_ledger" || (!r.id && !r.firstName && !r.lastName)) return;
+        if (!r || r.id === "master_ledger" || r.id === "all" || (!r.firstName && !r.lastName)) return;
         var id = (r.id || "").trim();
         var nameKey = ((r.firstName || "") + "|" + (r.lastName || "")).toLowerCase().trim();
         if ((id && seenIds[id]) || (nameKey && seenNames[nameKey])) {
@@ -5746,7 +5563,10 @@ showCatalogue(currentFilter);
           <div class="profile-body">
             <div class="card-identifiers">
               <span class="member-number">${clanMemberNumber(record)}</span>
-              <span class="generation-number">${generationLabel(record)}</span>
+              <div style="display:flex; align-items:center; gap:6px;">
+                <input type="checkbox" class="card-member-checkbox" value="${record.id}" onclick="event.stopPropagation(); updateSelectedCount();" style="width:16px; height:16px; accent-color:var(--forest); cursor:pointer;" aria-label="Select member">
+                <span class="generation-number">${generationLabel(record)}</span>
+              </div>
             </div>
             <div class="profile-top">
               ${getPhoto(record)}
@@ -5855,8 +5675,9 @@ showCatalogue(currentFilter);
           </div>
 
           <!-- Column 7: Action -->
-          <div style="text-align:right;">
-            <button type="button" class="button primary" onclick="event.stopPropagation(); openMemberDetailModal('${record.id}');" style="font-size:0.72rem; padding:6px 10px; background:var(--forest); color:#fff; border-radius:6px; font-weight:bold; cursor:pointer;">📖 Details</button>
+          <div style="text-align:right; display:flex; gap:6px; justify-content:flex-end; align-items:center;">
+            <button type="button" class="button primary" onclick="event.stopPropagation(); openMemberDetailModal('${record.id}');" style="font-size:0.72rem; padding:6px 10px; background:var(--forest); color:#fff; border-radius:6px; font-weight:bold; cursor:pointer;" title="View Member Details">📖 Details</button>
+            <button type="button" class="button" onclick="event.stopPropagation(); deleteMember('${record.id}');" style="font-size:0.72rem; padding:6px 8px; background:#fee2e2; color:#dc2626; border:1px solid #fca5a5; border-radius:6px; font-weight:bold; cursor:pointer;" title="Delete this member profile">🗑️</button>
           </div>
 
           <!-- Column 8: Checkbox (Right Side) -->
@@ -5881,7 +5702,7 @@ showCatalogue(currentFilter);
             '<button type="button" onclick="batchViewSelectedMembers()" class="button" style="background:#fff; color:var(--forest); border:1px solid #c2dec9; padding:6px 12px; border-radius:6px; font-size:0.75rem;">📖 View Selected</button>' +
             '<button type="button" onclick="batchExportSelectedCards()" class="button" style="background:#fff; color:var(--forest); border:1px solid #c2dec9; padding:6px 12px; border-radius:6px; font-size:0.75rem;">📄 Export Cards</button>' +
             '<button type="button" onclick="batchExportSelectedLines()" class="button" style="background:#fff; color:var(--forest); border:1px solid #c2dec9; padding:6px 12px; border-radius:6px; font-size:0.75rem;">📊 Export Lines</button>' +
-            '<button type="button" id="batchDeleteSelectedBtn" onclick="event.stopPropagation(); batchDeleteSelectedMembers(event);" class="button" style="background:#fee2e2; color:#dc2626; border:1px solid #fca5a5; padding:6px 12px; border-radius:6px; font-size:0.75rem; cursor:pointer; font-weight:800;">🗑️ Delete Selected</button>' +
+            '<button type="button" id="batchDeleteBtn" onclick="batchDeleteSelectedMembers()" class="button" style="background:#dc2626; color:#ffffff; border:1px solid #b91c1c; padding:6px 14px; border-radius:6px; font-size:0.75rem; cursor:pointer; font-weight:900; box-shadow:0 2px 4px rgba(220,38,38,0.2);">🗑️ Delete Selected</button>' +
             '<button type="button" onclick="batchClearSelection()" class="button" style="background:#fff; color:#475569; border:1px solid #cbd5e1; padding:6px 12px; border-radius:6px; font-size:0.75rem;">🧹 Clear All</button>' +
           '</div>' +
         '</div>' +
@@ -5962,6 +5783,20 @@ showCatalogue(currentFilter);
         var matchesQuery = !customQuery || searchable.indexOf(customQuery.toLowerCase()) > -1;
         var matchesFilterForm = currentFilter !== "custom" || matchesCustomFilter(record);
         return matchesFilter && matchesMember && matchesQuery && matchesFilterForm;
+      });
+
+      if (filtered.length === 0 && selectedMemberId) {
+        selectedMemberId = "";
+        return showCatalogue(filter);
+      }
+
+      filtered.sort(function(a, b) {
+        var genA = generationNumber(a);
+        var genB = generationNumber(b);
+        if (genA !== genB) {
+          return genA - genB; // Ascending generation order (Gen 0, Gen 1, Gen 2...)
+        }
+        return clanMemberNumber(a).localeCompare(clanMemberNumber(b));
       });
 
       var titles = {
@@ -8993,10 +8828,20 @@ updateAgeFields();
           var createdMember = result.member || (result.data && (result.data.member || result.data)) || {};
           id = createdMember.id || createdMember.recordId || result.memberId || result.id || id;
           record.id = id;
-          alert("Member added and persistently stored in Cloudflare D1!");
+          if (typeof window.markLocalDataMutation === "function") window.markLocalDataMutation();
+          window._recentSaveProfileToast = Date.now();
+          if (typeof showToast === "function") {
+            showToast("✅ Member added and persistently saved in JSON database!", "success");
+          }
         } catch (error) {
-          alert("Could not add member: " + error.message);
-          return;
+          console.warn("[saveProfile] Remote member add notice:", error);
+          if (!id) id = "rec-" + Date.now();
+          record.id = id;
+          if (typeof window.markLocalDataMutation === "function") window.markLocalDataMutation();
+          window._recentSaveProfileToast = Date.now();
+          if (typeof showToast === "function") {
+            showToast("⚠️ Member saved locally (" + error.message + ")", "info");
+          }
         }
       } else {
         try {
@@ -9048,10 +8893,15 @@ updateAgeFields();
           });
           var updateResult = await safeParseJson(updateResponse);
           if (updateResponse.ok && updateResult.success) {
-            console.log("[saveProfile] Member updated and persistently saved in Cloudflare D1.");
+            console.log("[saveProfile] Member updated and persistently saved in JSON database.");
+            if (typeof window.markLocalDataMutation === "function") window.markLocalDataMutation();
+            window._recentSaveProfileToast = Date.now();
+            if (typeof showToast === "function") {
+              showToast("✅ Member updated and persistently saved in JSON database!", "success");
+            }
           }
         } catch (updateErr) {
-          console.warn("[saveProfile] Cloudflare D1 update notice:", updateErr);
+          console.warn("[saveProfile] Member update notice:", updateErr);
         }
       }
 
@@ -9101,7 +8951,7 @@ updateAgeFields();
         if (!selected && position !== -1) member.siblingIds.splice(position, 1);
       });
 
-      saveRecords();
+      saveRecords(true);
       closeModal("profileModal");
       showCatalogue("all");
     }
@@ -9112,19 +8962,13 @@ updateAgeFields();
       var record = id ? findRecord(id) : null;
 
       if (!record) {
-        showToast("Please open an existing member profile to delete.", "error");
+        alert("Please open an existing member profile to delete.");
         return;
       }
 
-      var confirmed = await showConfirm(
-        "Are you sure you want to permanently delete " + fullName(record) + "? This will remove their record and clear parental/spouse links.",
-        "Delete Profile",
-        "🗑️ Delete Profile",
-        true
-      );
-      if (!confirmed) return;
-
-      markMemberAsDeleted(id);
+      if (!confirm("Delete " + fullName(record) + "?")) return;
+      if (typeof window.markLocalDataMutation === "function") window.markLocalDataMutation();
+      window._recentSaveProfileToast = Date.now();
 
       records = records.filter(function(item) {
         return item.id !== id;
@@ -9137,80 +8981,36 @@ updateAgeFields();
         if (Array.isArray(item.siblingIds)) item.siblingIds = item.siblingIds.filter(function(siblingId) { return siblingId !== id; });
       });
 
-      saveRecords();
+      saveRecords(true);
 
-      // Delete from backend API and record tombstones
       try {
-        fetch(getBackendApiUrl("/api/db/deleted-ids"), {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: id })
-        }).catch(function(){});
-        fetch(getBackendApiUrl("/api/db/collections/records/" + encodeURIComponent(id)), { method: "DELETE" }).catch(function(){});
-        fetch(getBackendApiUrl("/api/members/" + encodeURIComponent(id)), { method: "DELETE" }).catch(function(){});
-      } catch(apiDelErr) {}
+        await fetch(getBackendApiUrl("/api/members?id=" + encodeURIComponent(id)), { method: "DELETE" });
+      } catch (memDelErr) {
+        console.warn("[MembersDelete] Notice:", memDelErr);
+      }
 
-      // Delete from Firestore
       try {
         if (typeof db !== "undefined" && db && typeof db.collection === "function") {
-          await db.collection("members").doc(id).delete().catch(function(){});
-          var ledgerPayload = {
-            records: records,
-            deletedIds: Array.from(getDeletedMemberIds()),
-            count: records.length,
-            updatedAt: new Date().toISOString()
-          };
-          db.collection("records").doc("master_ledger").set(ledgerPayload).catch(function(){});
-          db.collection("records").doc("deleted_ids").set({ ids: Array.from(getDeletedMemberIds()), updatedAt: new Date().toISOString() }).catch(function(){});
-          db.collection("siaraMainaClan").doc("records").set(ledgerPayload).catch(function(){});
+          await db.collection("members").doc(id).delete();
         }
       } catch (fsDelErr) {
         console.warn("[Firestore] Member delete notice:", fsDelErr);
       }
 
       closeModal("profileModal");
-      showCatalogue(currentFilter || "all");
+      showCatalogue("all");
       if (typeof showToast === "function") {
-        showToast("🗑️ Profile successfully deleted", "success");
+        showToast("🗑️ Profile successfully deleted");
       }
     }
 
     async function deleteAllRecords() {
       if (!requirePermission("deleteMember", "You do not have permission to delete all clan records.")) return;
-      var confirmed = await showConfirm(
-        "⚠️ WARNING: This will permanently delete ALL clan records (" + records.length + " members) from the database and local storage. Are you absolutely sure?",
-        "Delete All Records",
-        "🗑️ Delete All Members",
-        true
-      );
-      if (!confirmed) return;
-
-      var allIds = [];
-      if (Array.isArray(records)) {
-        records.forEach(function(r) {
-          if (r && r.id) {
-            allIds.push(String(r.id));
-            markMemberAsDeleted(r.id);
-          }
-        });
-      }
+      if (!confirm("⚠️ WARNING: This will permanently delete ALL clan records (" + records.length + " members) from the database and local storage. Are you absolutely sure?")) return;
+      if (!confirm("⚠️ FINAL CONFIRMATION: This action cannot be undone unless you have a backup snapshot. Proceed with deleting all records?")) return;
 
       records = [];
       saveRecords();
-
-      try {
-        fetch(getBackendApiUrl("/api/db/deleted-ids"), {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ids: allIds })
-        }).catch(function(){});
-        fetch(getBackendApiUrl("/api/db/sync/records"), {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ records: [], deletedIds: Array.from(getDeletedMemberIds()), author: (typeof currentUser !== "undefined" && currentUser) ? (currentUser.displayName || currentUser.email) : "local_user" })
-        }).catch(function(){});
-      } catch(e) {}
-
       try {
         if (typeof db !== "undefined" && db && typeof db.collection === "function") {
           var memSnap = await db.collection("members").get();
@@ -9218,11 +9018,7 @@ updateAgeFields();
           memSnap.forEach(function(doc) {
             batch.delete(doc.ref);
           });
-          await batch.commit().catch(function(){});
-          var emptyLedger = { records: [], deletedIds: Array.from(getDeletedMemberIds()), count: 0, updatedAt: new Date().toISOString() };
-          db.collection("records").doc("master_ledger").set(emptyLedger).catch(function(){});
-          db.collection("records").doc("deleted_ids").set({ ids: Array.from(getDeletedMemberIds()), updatedAt: new Date().toISOString() }).catch(function(){});
-          db.collection("siaraMainaClan").doc("records").set(emptyLedger).catch(function(){});
+          await batch.commit();
         }
       } catch (err) {
         console.warn("Firestore bulk delete notice:", err);
@@ -10743,12 +10539,38 @@ var preview = document.getElementById("photoPreview");
     };
     var CSV_HEADERS = Object.keys(CSV_FIELD_MAP);
     var CSV_LEGACY_HEADER_ALIASES = {
-      "id":"id", "firstName":"firstName", "middleName":"middleName", "lastName":"lastName", "sex":"sex", "branchType":"branchType",
-      "honorific":"honorific", "dob":"dob", "birthPeriod":"birthPeriod", "placeOfBirth":"placeOfBirth", "deceased":"deceased", "dod":"dod",
-      "deathAge":"deathAge", "causeOfDeath":"causeOfDeath", "fatherId":"fatherId", "motherId":"motherId", "spouseId":"spouseId",
-      "siblingIds":"siblingIds", "maritalStatus":"maritalStatus", "education":"education", "course":"course", "employment":"employment",
-      "occupation":"occupation", "organization":"organization", "religion":"religion", "denomination":"denomination", "phone":"phone",
-      "whatsapp":"whatsapp", "email":"email", "location":"location", "narrative":"narrative"
+      "id":"id", "member id":"id", "memberid":"id",
+      "firstname":"firstName", "first name":"firstName", "fname":"firstName", "given name":"firstName",
+      "middlename":"middleName", "middle name":"middleName", "mname":"middleName",
+      "lastname":"lastName", "last name":"lastName", "lname":"lastName", "surname":"lastName", "family name":"lastName",
+      "name":"firstName", "full name":"firstName", "fullname":"firstName",
+      "sex":"sex", "gender":"sex",
+      "branchtype":"branchType", "branch":"branchType", "family classification":"branchType", "family":"branchType",
+      "honorific":"honorific", "title":"honorific",
+      "dob":"dob", "date of birth":"dob", "birth date":"dob", "born":"dob",
+      "birthperiod":"birthPeriod", "historical period":"birthPeriod", "period":"birthPeriod",
+      "placeofbirth":"placeOfBirth", "place of birth":"placeOfBirth", "birth place":"placeOfBirth",
+      "deceased":"deceased", "life status":"deceased", "status":"deceased", "alive":"deceased",
+      "dod":"dod", "date of death":"dod", "death date":"dod",
+      "deathage":"deathAge", "age at death":"deathAge",
+      "causeofdeath":"causeOfDeath", "cause of death":"causeOfDeath",
+      "fatherid":"fatherId", "father profile":"fatherId", "father":"fatherId",
+      "motherid":"motherId", "mother profile":"motherId", "mother":"motherId",
+      "spouseid":"spouseId", "spouse profile":"spouseId", "spouse":"spouseId",
+      "siblingids":"siblingIds", "sibling profiles":"siblingIds", "siblings":"siblingIds",
+      "maritalstatus":"maritalStatus", "marital status":"maritalStatus",
+      "education":"education", "education level":"education",
+      "course":"course", "course / area of study":"course", "field of study":"course",
+      "employment":"employment", "employment status":"employment",
+      "occupation":"occupation", "job":"occupation",
+      "organization":"organization", "organisation / employer":"organization", "employer":"organization", "company":"organization",
+      "religion":"religion", "faith":"religion",
+      "denomination":"denomination", "church":"denomination",
+      "phone":"phone", "telephone number":"phone", "telephone":"phone", "mobile":"phone", "phone number":"phone",
+      "whatsapp":"whatsapp", "whatsapp number":"whatsapp",
+      "email":"email", "email address":"email",
+      "location":"location", "current location":"location", "address":"location", "residence":"location",
+      "narrative":"narrative", "historical narrative / notes":"narrative", "notes":"narrative", "bio":"narrative", "biography":"narrative"
     };
     var CSV_BRANCH_LABELS = {heritage:"Foundational Ancestry", siara:"Siara Branch", maina:"Maina Branch", maliti:"Maliti Family"};
     var CSV_BRANCH_VALUES = {"foundational ancestry":"heritage", "siara branch":"siara", "maina branch":"maina", "maliti family":"maliti"};
@@ -10765,11 +10587,12 @@ var preview = document.getElementById("photoPreview");
     }
 
     function normalizeCsvHeader(header, index) {
-      var value = csvText(header).replace(/^\uFEFF/, "").trim();
-      var friendly = CSV_HEADERS.find(function(label) { return label.toLowerCase() === value.toLowerCase(); });
+      var value = csvText(header).replace(/^\uFEFF/, "").trim().toLowerCase();
+      var friendly = CSV_HEADERS.find(function(label) { return label.toLowerCase() === value; });
       if (friendly) return CSV_FIELD_MAP[friendly];
-      var legacy = Object.keys(CSV_LEGACY_HEADER_ALIASES).find(function(label) { return label.toLowerCase() === value.toLowerCase(); });
-      return legacy ? CSV_LEGACY_HEADER_ALIASES[legacy] : "column" + index;
+      var legacy = CSV_LEGACY_HEADER_ALIASES[value];
+      if (legacy) return legacy;
+      return "column" + index;
     }
 
     function normalizeCsvDate(value) {
@@ -10906,13 +10729,23 @@ var preview = document.getElementById("photoPreview");
     }
 
     function parseCsvText(text) {
-      var rows = [], row = [], value = "", quoted = false;
       text = csvText(text).replace(/^\uFEFF/, "");
+      var firstLineEnd = text.indexOf("\n");
+      if (firstLineEnd === -1) firstLineEnd = text.indexOf("\r");
+      var firstLine = firstLineEnd > -1 ? text.substring(0, firstLineEnd) : text;
+      var commaCount = (firstLine.match(/,/g) || []).length;
+      var semiCount = (firstLine.match(/;/g) || []).length;
+      var tabCount = (firstLine.match(/\t/g) || []).length;
+      var delimiter = ",";
+      if (semiCount > commaCount && semiCount >= tabCount) delimiter = ";";
+      else if (tabCount > commaCount && tabCount > semiCount) delimiter = "\t";
+
+      var rows = [], row = [], value = "", quoted = false;
       for (var i = 0; i < text.length; i++) {
         var character = text.charAt(i), next = text.charAt(i + 1);
         if (character === '"' && quoted && next === '"') { value += '"'; i++; }
         else if (character === '"') quoted = !quoted;
-        else if (character === "," && !quoted) { row.push(value); value = ""; }
+        else if (character === delimiter && !quoted) { row.push(value); value = ""; }
         else if ((character === "\n" || character === "\r") && !quoted) {
           if (character === "\r" && next === "\n") i++;
           row.push(value); value = "";
@@ -10997,6 +10830,11 @@ var preview = document.getElementById("photoPreview");
       scalarFields.forEach(function(field) {
         if (row[field] !== undefined) member[field] = field === "dob" || field === "dod" ? normalizeCsvDate(row[field]) : csvText(row[field]).trim();
       });
+      if (member.firstName && !member.lastName && member.firstName.indexOf(" ") > -1) {
+        var parts = member.firstName.split(/\s+/);
+        member.firstName = parts[0];
+        member.lastName = parts.slice(1).join(" ");
+      }
       var lifeStatus = parseImportedDeceased(row.deceased);
       if (lifeStatus !== null) member.deceased = lifeStatus;
       if (!member.deceased && row.deceased === undefined) member.deceased = false;
@@ -11067,60 +10905,124 @@ var preview = document.getElementById("photoPreview");
       var file = event.target.files[0];
       if (!file) return;
       var reader = new FileReader();
-      reader.onload = function(loadEvent) {
-        var rows = parseCsvText(loadEvent.target.result);
-        if (rows.length < 2) { alert("The CSV file has no member records."); return; }
-        var originalRecords = JSON.parse(JSON.stringify(records));
-        var headers = rows[0].map(normalizeCsvHeader), imported = 0, added = 0, updated = 0;
-        csvPendingRelationships = []; csvImportWarnings = []; csvRelationshipCount = 0;
-        rows.slice(1).forEach(function(values, index) {
-          var row = {};
-          headers.forEach(function(field, fieldIndex) { if (field.indexOf("column") !== 0) row[field] = csvText(values[fieldIndex]).trim(); });
-          if (!row.firstName && !row.id && !row.lastName) return;
-          var normalized = normalizeImportedMember(row, records), importedId = csvText(row.id).trim();
-          var existingIndex = importedId ? records.findIndex(function(record) { return record.id === importedId; }) : -1;
-          var nameKey = csvNameDuplicateKey(normalized.member);
-          if (existingIndex === -1 && nameKey) {
-            existingIndex = records.findIndex(function(record) { return csvNameDuplicateKey(record) === nameKey; });
-          }
-          if (existingIndex > -1) {
-            normalized.member.id = records[existingIndex].id;
-            var existingRecord = records[existingIndex];
-            Object.keys(normalized.member).forEach(function(field) {
-              if (field === "id" || csvText(normalized.member[field]).trim() !== "") existingRecord[field] = normalized.member[field];
-            });
-            records[existingIndex] = existingRecord;
-            normalized.member = records[existingIndex];
-            updated++;
+      reader.onload = async function(loadEvent) {
+        try {
+          var rows = parseCsvText(loadEvent.target.result);
+          if (rows.length < 1) { alert("The CSV file is empty."); event.target.value = ""; return; }
+          var originalRecords = JSON.parse(JSON.stringify(records));
+
+          var hasHeader = true;
+          var firstRow = rows[0];
+          var headerTestText = firstRow.join(" ").toLowerCase();
+          var headerKeywords = ["id", "first", "last", "name", "sex", "gender", "branch", "phone", "email", "dob", "status"];
+          var matchesHeaderKeyword = headerKeywords.some(function(kw) { return headerTestText.indexOf(kw) > -1; });
+
+          var headers, dataRows;
+          if (rows.length === 1 || !matchesHeaderKeyword) {
+            headers = firstRow.map(function(_, i) { return "column" + i; });
+            dataRows = rows;
+            hasHeader = false;
           } else {
-            normalized.member.id = importedId || uniqueImportedId();
-            if (normalized.member.deceased === undefined) normalized.member.deceased = false;
-            normalized.member.fatherId = "";
-            normalized.member.motherId = "";
-            normalized.member.spouseId = "";
-            if (!Array.isArray(normalized.member.siblingIds)) normalized.member.siblingIds = [];
-            records.push(normalized.member);
-            added++;
+            headers = firstRow.map(normalizeCsvHeader);
+            dataRows = rows.slice(1);
           }
-          csvPendingRelationships.push({record:normalized.member, values:normalized.relationships, rowNumber:index + 2});
-          imported++;
-        });
-        reconcileImportedRelationships();
-        var summary = "CSV Import Summary\n- Rows read: " + (rows.length - 1) + "\n- New members created: " + added + "\n- Existing members updated: " + updated + "\n- Relationships resolved: " + csvRelationshipCount + "\n- Warnings: " + csvImportWarnings.length + "\n\nFor relationships, use the exported \"Full Name [Member ID]\" format. Do not change Member ID values unless you understand the relationship effects.";
-        if (csvImportWarnings.length) summary += "\n\n" + csvImportWarnings.slice(0, 20).join("\n") + (csvImportWarnings.length > 20 ? "\n...and more warnings." : "");
-        if (!confirm(summary + "\n\nSelect OK to accept this import or Cancel to reject it.")) {
-          records = originalRecords;
-          csvPendingRelationships = [];
-          csvImportWarnings = [];
-          csvRelationshipCount = 0;
-          return;
+
+          if (dataRows.length === 0) {
+            alert("The CSV file has no member records.");
+            event.target.value = "";
+            return;
+          }
+
+          var imported = 0, added = 0, updated = 0;
+          csvPendingRelationships = []; csvImportWarnings = []; csvRelationshipCount = 0;
+          dataRows.forEach(function(values, index) {
+            var row = {};
+            headers.forEach(function(field, fieldIndex) {
+              var val = csvText(values[fieldIndex]).trim();
+              if (field && field.indexOf("column") !== 0) {
+                row[field] = val;
+              } else if (fieldIndex === 0 && !row.firstName) {
+                row.firstName = val;
+              } else if (fieldIndex === 1 && !row.lastName) {
+                row.lastName = val;
+              } else if (fieldIndex === 2 && !row.middleName) {
+                row.middleName = val;
+              }
+            });
+            if (!row.firstName && !row.id && !row.lastName) {
+              var anyVal = values.find(function(v) { return String(v).trim(); });
+              if (anyVal) row.firstName = String(anyVal).trim();
+              else return;
+            }
+            var normalized = normalizeImportedMember(row, records), importedId = csvText(row.id).trim();
+            var existingIndex = importedId ? records.findIndex(function(record) { return record.id === importedId; }) : -1;
+            var nameKey = csvNameDuplicateKey(normalized.member);
+            if (existingIndex === -1 && nameKey) {
+              existingIndex = records.findIndex(function(record) { return csvNameDuplicateKey(record) === nameKey; });
+            }
+            if (existingIndex > -1) {
+              normalized.member.id = records[existingIndex].id;
+              var existingRecord = records[existingIndex];
+              Object.keys(normalized.member).forEach(function(field) {
+                if (field === "id" || csvText(normalized.member[field]).trim() !== "") existingRecord[field] = normalized.member[field];
+              });
+              records[existingIndex] = existingRecord;
+              normalized.member = records[existingIndex];
+              updated++;
+            } else {
+              normalized.member.id = importedId || uniqueImportedId();
+              if (normalized.member.deceased === undefined) normalized.member.deceased = false;
+              normalized.member.fatherId = "";
+              normalized.member.motherId = "";
+              normalized.member.spouseId = "";
+              if (!Array.isArray(normalized.member.siblingIds)) normalized.member.siblingIds = [];
+              records.push(normalized.member);
+              added++;
+            }
+            csvPendingRelationships.push({record:normalized.member, values:normalized.relationships, rowNumber:index + (hasHeader ? 2 : 1)});
+            imported++;
+          });
+
+          reconcileImportedRelationships();
+          var summary = "CSV Import Summary\n- Rows processed: " + dataRows.length + "\n- New members created: " + added + "\n- Existing members updated: " + updated + "\n- Relationships resolved: " + csvRelationshipCount + "\n- Warnings: " + csvImportWarnings.length;
+          if (csvImportWarnings.length) summary += "\n\n" + csvImportWarnings.slice(0, 20).join("\n") + (csvImportWarnings.length > 20 ? "\n...and more warnings." : "");
+          if (!confirm(summary + "\n\nSelect OK to accept this import or Cancel to reject it.")) {
+            records = originalRecords;
+            csvPendingRelationships = [];
+            csvImportWarnings = [];
+            csvRelationshipCount = 0;
+            event.target.value = "";
+            return;
+          }
+
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+            localStorage.setItem(LOCAL_DATA_UPDATED_AT_KEY, new Date().toISOString());
+            if (typeof runDataHealthCheck === "function") runDataHealthCheck();
+
+            var author = (typeof currentUser !== "undefined" && currentUser) ? (currentUser.displayName || currentUser.email) : "csv_importer";
+            await fetch(getBackendApiUrl("/api/db/sync/records"), {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ records: records, author: author })
+            });
+          } catch (syncErr) {
+            console.warn("[ImportCsv] Persistent sync notice:", syncErr);
+          }
+
+          if (typeof showToast === "function") {
+            showToast("Successfully imported " + added + " new member(s) and updated " + updated + " member(s) persistently into the JSON database.", "success");
+          }
+
+          populateArchiveMemberSelect();
+          var treeWasOpen = document.getElementById("treePage").classList.contains("active"), statsWereOpen = document.getElementById("statisticsPage").classList.contains("active");
+          if (treeWasOpen) showTree(window.currentTreeType || "clan", window.currentTreeRoot || "");
+          else if (statsWereOpen) showStatistics();
+          else showCatalogue("all");
+        } catch (err) {
+          console.error("[ImportCsv] Error parsing CSV:", err);
+          alert("Failed to import CSV file: " + err.message);
         }
-        saveRecords();
-        populateArchiveMemberSelect();
-        var treeWasOpen = document.getElementById("treePage").classList.contains("active"), statsWereOpen = document.getElementById("statisticsPage").classList.contains("active");
-        if (treeWasOpen) showTree(window.currentTreeType || "clan", window.currentTreeRoot || "");
-        else if (statsWereOpen) showStatistics();
-        else showCatalogue("all");
       };
       reader.readAsText(file);
       event.target.value = "";
@@ -11424,10 +11326,6 @@ var preview = document.getElementById("photoPreview");
     // =========================================================================
 
     function openGitHubSyncModal() {
-      // Ensure any stray confirmation modal is closed
-      var confirmModal = document.getElementById("appConfirmModal");
-      if (confirmModal) confirmModal.classList.remove("open");
-
       var modal = document.getElementById("githubSyncModal");
       if (!modal) return;
 
@@ -11475,7 +11373,7 @@ var preview = document.getElementById("photoPreview");
         feedback.style.background = "#dcfce7";
         feedback.style.color = "#166534";
         feedback.style.border = "1px solid #bbf7d0";
-        feedback.textContent = "✓ GitHub settings and Access Token saved securely.";
+        feedback.textContent = "✓ GitHub settings and Access Token saved to local storage.";
       }
       showToast("✓ GitHub Token Saved");
     }
@@ -11534,30 +11432,20 @@ var preview = document.getElementById("photoPreview");
     window.testGitHubConnectionFromModal = testGitHubConnectionFromModal;
 
     async function pushDataToGitHubFromModal() {
-      if (window._isPushingToGitHub) {
-        showToast("⏳ Push already in progress. Please wait...", "info");
-        return;
-      }
-      var now = Date.now();
-      if (window._lastPushTime && (now - window._lastPushTime < 10000)) {
-        showToast("⚠️ Please wait a few seconds before pushing again to respect GitHub rate limits.", "error");
-        var fb = document.getElementById("githubModalFeedback");
-        if (fb) {
-          fb.style.display = "block";
-          fb.style.background = "#fef2f2";
-          fb.style.color = "#991b1b";
-          fb.style.border = "1px solid #fecaca";
-          fb.textContent = "⚠️ GitHub Secondary Rate Limit protection: Please wait 10 seconds between pushes.";
-        }
-        return;
-      }
-      window._isPushingToGitHub = true;
-      window._lastPushTime = now;
-
       var feedback = document.getElementById("githubModalFeedback");
       var pushBtn = document.getElementById("modalGithubPushBtn");
       var token = (document.getElementById("githubTokenInput")?.value || localStorage.getItem("github_token") || "").trim();
-      var repo = getActiveGitHubRepo();
+
+      if (!token) {
+        if (feedback) {
+          feedback.style.display = "block";
+          feedback.style.background = "#fef2f2";
+          feedback.style.color = "#991b1b";
+          feedback.style.border = "1px solid #fecaca";
+          feedback.innerHTML = "⚠️ <strong>Personal Access Token Required:</strong> Please enter a GitHub token with <code>Contents: Read and write</code> permission to publish.";
+        }
+        return;
+      }
 
       saveGitHubTokenFromModal();
 
@@ -11571,46 +11459,34 @@ var preview = document.getElementById("photoPreview");
         feedback.style.background = "#eff6ff";
         feedback.style.color = "#1e40af";
         feedback.style.border = "1px solid #bfdbfe";
-        feedback.textContent = "⏳ Publishing clan records to GitHub repository '" + repo + "' via Cloud Engine...";
+        feedback.textContent = "⏳ Publishing " + (records ? records.length : 0) + " clan records to GitHub repository '" + getActiveGitHubRepo() + "'...";
       }
 
       try {
-        var deletedIdsSet = getDeletedMemberIds();
-        var cleanRecords = (records || []).filter(function(r) {
-          if (!r) return false;
-          var idStr = String(r.id || r.uid || "");
-          if (idStr && deletedIdsSet.has(idStr)) return false;
-          if (r.id === "master_ledger" || r.id === "all") return false;
-          if (!r.firstName && !r.lastName && !r.middleName) return false;
-          return true;
-        });
-
-        // Always push via server-side proxy /github/push to prevent browser CORS / "Failed to fetch"
-        var serverRes = await fetch(getBackendApiUrl("/github/push"), {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ repo: repo, token: token || undefined, records: cleanRecords })
-        });
-        var serverJson = await safeParseJson(serverRes);
-
-        if (!serverRes.ok || !serverJson || !serverJson.success) {
-          throw new Error(serverJson.error || ("GitHub push failed with status " + serverRes.status));
-        }
-
         var timestamp = new Date().toISOString();
+        var payload = {
+          project: "SiaraMaina Clan Informatics",
+          exportedAt: timestamp,
+          count: (records || []).length,
+          lastPublishedBy: (typeof currentUser !== "undefined" && currentUser) ? (currentUser.displayName || currentUser.email) : "Admin",
+          records: records || []
+        };
+
+        var writeRes = await githubWriteFile("siara-maina-clan-data.json", payload, "Update clan dataset (" + payload.count + " records) from SiaraMaina Clan Informatics", token);
+        
         localStorage.setItem(LOCAL_DATA_UPDATED_AT_KEY, timestamp);
 
         if (feedback) {
           feedback.style.background = "#dcfce7";
           feedback.style.color = "#166534";
           feedback.style.border = "1px solid #bbf7d0";
-          feedback.innerHTML = "✅ <strong>Successfully Published to GitHub!</strong> " + serverJson.count + " records committed to <code>siara-maina-clan-data.json</code>. GitHub Pages will refresh automatically in ~60 seconds.";
+          feedback.innerHTML = "✅ <strong>Successfully Published to GitHub!</strong> " + payload.count + " records committed to <code>siara-maina-clan-data.json</code>. GitHub Pages will refresh automatically in ~60 seconds.";
         }
 
         if (typeof logSyncEvent === "function") {
-          logSyncEvent("🚀 Published " + serverJson.count + " clan records to GitHub repository " + repo + ".");
+          logSyncEvent("🚀 Published " + payload.count + " clan records to GitHub repository " + getActiveGitHubRepo() + " (Commit SHA: " + (writeRes.commit ? writeRes.commit.sha.slice(0, 7) : "ok") + ").");
         }
-        showToast("🚀 " + serverJson.count + " Records Published to GitHub!");
+        showToast("🚀 " + payload.count + " Records Published to GitHub!");
       } catch (err) {
         console.error("GitHub Push error:", err);
         if (feedback) {
@@ -11620,7 +11496,6 @@ var preview = document.getElementById("photoPreview");
           feedback.textContent = "❌ GitHub publishing failed: " + err.message;
         }
       } finally {
-        window._isPushingToGitHub = false;
         if (pushBtn) {
           pushBtn.disabled = false;
           pushBtn.style.opacity = "1";
@@ -11743,22 +11618,7 @@ var preview = document.getElementById("photoPreview");
     }
     window.downloadClanDataJson = downloadClanDataJson;
 
-    async function synchronizeProjectDataWithGitHub(e) {
-      if (e) {
-        if (typeof e.stopPropagation === "function") e.stopPropagation();
-        if (typeof e.preventDefault === "function" && e.cancelable) e.preventDefault();
-      }
-      window._lastMenuActionTime = Date.now();
-
-      // Explicitly ensure any confirmation modal is closed and reset
-      var confirmModal = document.getElementById("appConfirmModal");
-      if (confirmModal) confirmModal.classList.remove("open");
-
-      // Safely close all dropdown menus without causing click pass-through
-      if (typeof closeAllMenus === "function") {
-        setTimeout(closeAllMenus, 80);
-      }
-
+    async function synchronizeProjectDataWithGitHub() {
       openGitHubSyncModal();
     }
     window.synchronizeProjectDataWithGitHub = synchronizeProjectDataWithGitHub;
@@ -12408,44 +12268,25 @@ document.getElementById("printModal").classList.add("open");
         return;
       }
 
-      var deletedIds = getDeletedMemberIds();
-      if (Array.isArray(firestoreData.deletedIds)) {
-        firestoreData.deletedIds.forEach(function(dId) {
-          if (dId) {
-            deletedIds.add(String(dId));
-            markMemberAsDeleted(dId);
-          }
-        });
+      const remoteRecords = firestoreData.records;
+      const remoteUpdatedAt = firestoreData.updatedAt || new Date().toISOString();
+
+      // THE IN-BUILT BACKEND IS THE AUTHORITATIVE SOURCE OF TRUTH:
+      // If local in-memory records has MORE records than remote Firestore, Firestore is lagging behind the authoritative backend.
+      // We must NEVER overwrite local records with a stale, smaller snapshot! Instead push authoritative state forward.
+      if (Array.isArray(records) && records.length > remoteRecords.length) {
+        logSyncEvent("In-built backend authoritative records (" + records.length + ") ahead of remote Firestore (" + remoteRecords.length + "). Updating Firestore forward...");
+        if (window.autoSyncAll) {
+          window.autoSyncAll();
+        }
+        return;
       }
 
-      var remoteUpdatedAt = firestoreData.updatedAt || new Date().toISOString();
-
-      // Filter out any deleted records from remote snapshot
-      var filteredRemoteRecords = (firestoreData.records || []).filter(function(r) {
-        if (!r) return false;
-        var idStr = String(r.id || r.uid || "");
-        if (idStr && deletedIds.has(idStr)) return false;
-        if (r.id === "master_ledger" || r.id === "all") return false;
-        if (!r.firstName && !r.lastName && !r.middleName) return false;
-        return true;
-      });
-
-      // Safe merge by member ID
-      var currentRecords = Array.isArray(records) ? records.filter(function(r) {
-        if (!r) return false;
-        var idStr = String(r.id || r.uid || "");
-        return idStr && !deletedIds.has(idStr) && r.id !== "master_ledger" && r.id !== "all";
-      }) : [];
-
+      // Safe merge by member ID to guarantee no locally entered member is ever lost or deleted
+      var currentRecords = Array.isArray(records) ? records : [];
       var memberMap = new Map();
-      currentRecords.forEach(function(r) {
-        var idStr = String(r.id || r.uid || "");
-        if (idStr && !deletedIds.has(idStr)) memberMap.set(idStr, r);
-      });
-      filteredRemoteRecords.forEach(function(r) {
-        var idStr = String(r.id || r.uid || "");
-        if (idStr && !deletedIds.has(idStr)) memberMap.set(idStr, r);
-      });
+      currentRecords.forEach(function(r) { if (r && r.id) memberMap.set(String(r.id), r); });
+      remoteRecords.forEach(function(r) { if (r && r.id) memberMap.set(String(r.id), r); });
       var mergedRecords = Array.from(memberMap.values());
 
       const localSerialized = JSON.stringify(currentRecords);
@@ -12492,7 +12333,9 @@ document.getElementById("printModal").classList.add("open");
       if (typeof updateNotificationCenter === "function") updateNotificationCenter();
       if (typeof runDataHealthCheck === "function") runDataHealthCheck();
 
-      showToast(`⚡ Real-time sync: Updated ${remoteRecords.length} clan records from cloud`);
+      if (typeof showRealtimeSyncToast === "function") {
+        showRealtimeSyncToast(mergedRecords.length, "firestore");
+      }
       updateDashboardStatus();
     }
 
@@ -12538,49 +12381,7 @@ document.getElementById("printModal").classList.add("open");
 
     var _firestoreRecordsUnsubscribe = null;
     function establishFirestoreListener() {
-      if (_firestoreRecordsUnsubscribe) return;
-      var activeDb = (typeof getDedicatedDb === "function" ? getDedicatedDb() : db);
-      if (!activeDb || typeof activeDb.collection !== "function") {
-        setTimeout(establishFirestoreListener, 300);
-        return;
-      }
-      try {
-        var ledgerDocRef = activeDb.collection("records").doc("master_ledger");
-        _firestoreRecordsUnsubscribe = ledgerDocRef.onSnapshot(function(docSnap) {
-          if (docSnap && docSnap.exists) {
-            var data = docSnap.data();
-            if (data && Array.isArray(data.records) && data.records.length > 0) {
-              handleFirestoreRealtimeSnapshot(data, docSnap.metadata);
-            }
-          } else {
-            // Also check legacy doc path
-            activeDb.collection("siaraMainaClan").doc("records").get().then(function(sDoc) {
-              if (sDoc && sDoc.exists) {
-                var sData = sDoc.data();
-                if (sData && Array.isArray(sData.records) && sData.records.length > 0) {
-                  handleFirestoreRealtimeSnapshot(sData, sDoc.metadata);
-                }
-              }
-            }).catch(function(){});
-          }
-        }, function(err) {
-          var msg = err && (err.message || String(err)) || "";
-          if (msg.includes("Quota exceeded") || msg.includes("quota") || msg.includes("RESOURCE_EXHAUSTED") || msg.includes("Free daily read units")) {
-            console.warn("[Firestore] Quota limit reached. Halting automatic listener reconnection to preserve resources.");
-            _firestoreRecordsUnsubscribe = null;
-            return;
-          }
-          if (err && (err.code === "unavailable" || err.code === 14 || msg.indexOf("ECONNRESET") !== -1 || msg.indexOf("UNAVAILABLE") !== -1)) {
-            console.warn("[Firestore] onSnapshot notice (transient stream reset, auto-reconnecting):", msg);
-            _firestoreRecordsUnsubscribe = null;
-            setTimeout(establishFirestoreListener, 3000);
-          } else {
-            console.warn("[Firestore] onSnapshot listener notice:", err);
-          }
-        });
-      } catch (e) {
-        console.warn("[Firestore] establish listener notice:", e);
-      }
+      // Disabled to prevent Firestore quota limits; using self-sustaining JSON backend engine.
     }
     // Proactively initialize Firestore real-time listener on startup
     setTimeout(function() { establishFirestoreListener(); }, 100);
@@ -12748,23 +12549,35 @@ document.getElementById("printModal").classList.add("open");
         }
         return;
       }
+      if (password.length < 4) {
+        if (alertEl) {
+          alertEl.className = "campusflow-alert error";
+          alertEl.style.display = "flex";
+          alertEl.innerHTML = `<span>⚠️</span><span>Password must be at least 4 characters long.</span>`;
+        }
+        return;
+      }
       if (btn) { btn.disabled = true; btn.innerHTML = `<span>Verifying credentials...</span>`; }
       try {
-        const userCredential = await auth.signInWithEmailAndPassword(email, password);
-        const user = userCredential.user;
-        console.log("Firebase Sign-In Success:", user.email);
-
-        // Call centralized updateUIAuthState immediately
-        updateUIAuthState(user);
-
-        if (typeof showToast === "function") {
-          showToast("Welcome back, " + (user.displayName || user.email) + "!");
+        const res = await fetch(getBackendApiUrl("/api/auth/login"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || "Login failed");
         }
 
-        try {
-          await recordAuditLog("AUTH_LOGIN", `User signed in: ${user.email}`, { provider: "password" }, user.uid, user.email);
-        } catch(auditErr) {
-          console.warn("Audit log notice:", auditErr.message);
+        if (data.token && typeof api !== "undefined" && api.setToken) {
+          api.setToken(data.token);
+        }
+        localStorage.setItem("siara_user_session", JSON.stringify(data.user));
+
+        updateUIAuthState(data.user);
+
+        if (typeof showToast === "function") {
+          showToast("Welcome back, " + (data.user.displayName || data.user.email) + "!");
         }
 
         if (alertEl) {
@@ -12773,31 +12586,15 @@ document.getElementById("printModal").classList.add("open");
           alertEl.innerHTML = `<span>✅</span><span>Authentication successful! Opening secure clan ledger...</span>`;
         }
 
-        // Cleanly close login modal & unlock interface
         setTimeout(function() {
           closeLoginModal();
-          if (typeof showToast === "function") {
-            showToast("Welcome back, " + (user.displayName || user.email) + "!");
-          }
-        }, 400);
+          window.location.reload();
+        }, 600);
       } catch (err) {
-        console.error("Firebase Sign-In Error:", err.code, err.message);
-        let message = "Invalid email or password.";
-        if (err.code === "auth/user-not-found" || err.code === "auth/invalid-credential") {
-          message = "No account found with this email address or invalid credentials.";
-        } else if (err.code === "auth/wrong-password") {
-          message = "Incorrect password. Please verify and try again or use Recovery.";
-        } else if (err.code === "auth/invalid-email") {
-          message = "Please enter a valid email address.";
-        } else if (err.code === "auth/too-many-requests") {
-          message = "Access temporarily rate-limited due to multiple attempts. Please wait a moment.";
-        } else {
-          message = err.message || "Sign in failed.";
-        }
         if (alertEl) {
           alertEl.className = "campusflow-alert error";
           alertEl.style.display = "flex";
-          alertEl.innerHTML = `<span>⚠️</span><span>${message}</span>`;
+          alertEl.innerHTML = `<span>⚠️</span><span>${escapeHtml(err.message || "Invalid email or password.")}</span>`;
         }
       } finally {
         if (btn) {
@@ -12837,49 +12634,32 @@ document.getElementById("printModal").classList.add("open");
         }
         return;
       }
-      if (password.length < 6) {
+      if (password.length < 4) {
         if (alertEl) {
           alertEl.className = "campusflow-alert error";
           alertEl.style.display = "flex";
-          alertEl.innerHTML = `<span>⚠️</span><span>Password must be at least 6 characters long.</span>`;
+          alertEl.innerHTML = `<span>⚠️</span><span>Password must be at least 4 characters long.</span>`;
         }
         return;
       }
-      if (btn) { btn.disabled = true; btn.innerHTML = `<span>Creating account in Firebase...</span>`; }
+      if (btn) { btn.disabled = true; btn.innerHTML = `<span>Creating account...</span>`; }
       try {
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-        const user = userCredential.user;
-        
-        try {
-          await user.updateProfile({ displayName: name });
-        } catch(pErr) {
-          console.warn("Profile update notice:", pErr.message);
+        const res = await fetch(getBackendApiUrl("/api/auth/register"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password, displayName: name, branch })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || "Registration failed");
         }
 
-        const initialRole = (email.toLowerCase() === "deodatusmaliti2@gmail.com") ? "admin" : "viewer";
-        const userData = {
-          uid: user.uid,
-          email: user.email,
-          displayName: name,
-          branch: branch,
-          role: initialRole,
-          active: true,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-        try {
-          await db.collection("users").doc(user.uid).set(userData);
-        } catch(dbErr) {
-          console.warn("User doc setup notice:", dbErr.message);
+        if (data.token && typeof api !== "undefined" && api.setToken) {
+          api.setToken(data.token);
         }
+        localStorage.setItem("siara_user_session", JSON.stringify(data.user));
 
-        try {
-          await recordAuditLog("AUTH_SIGNUP", `New member account created: ${user.email}`, { branch: branch, role: initialRole }, user.uid, user.email);
-        } catch(aErr) {}
-
-        console.log("Firebase Registration Success:", user.email);
-        
-        // Call centralized updateUIAuthState immediately
-        updateUIAuthState(user, userData);
+        updateUIAuthState(data.user);
 
         if (typeof showToast === "function") {
           showToast("Welcome to SiaraMaina Clan Informatics, " + name + "!");
@@ -12893,31 +12673,18 @@ document.getElementById("printModal").classList.add("open");
 
         setTimeout(function() {
           closeLoginModal();
-          if (typeof showToast === "function") {
-            showToast("Welcome to SiaraMaina Clan Informatics, " + name + "!");
-          }
-        }, 500);
+          window.location.reload();
+        }, 600);
       } catch (err) {
-        console.error("Firebase Registration Error:", err.code, err.message);
-        let message = "Failed to create account.";
-        if (err.code === "auth/email-already-in-use") {
-          message = "An account with this email address already exists. Please sign in instead.";
-        } else if (err.code === "auth/weak-password") {
-          message = "Password is too weak. Please use at least 6 characters.";
-        } else if (err.code === "auth/invalid-email") {
-          message = "Please enter a valid email address.";
-        } else {
-          message = err.message || "Registration failed.";
-        }
         if (alertEl) {
           alertEl.className = "campusflow-alert error";
           alertEl.style.display = "flex";
-          alertEl.innerHTML = `<span>⚠️</span><span>${message}</span>`;
+          alertEl.innerHTML = `<span>⚠️</span><span>${escapeHtml(err.message || "Registration failed.")}</span>`;
         }
       } finally {
         if (btn) {
-           btn.disabled = false;
-           btn.innerHTML = `<span>Create Clan Account</span><span aria-hidden="true">➔</span>`;
+          btn.disabled = false;
+          btn.innerHTML = `<span>Create Account</span>`;
         }
       }
     };
@@ -13235,98 +13002,30 @@ document.getElementById("printModal").classList.add("open");
       }
       
       updateFirebaseDebugPanel(user);
-      
-      // Explicit call to update UI visibility immediately based on session state
       updateUIVisibility(user);
 
       if (user && !user.isAnonymous) {
         closeLoginModal();
-        logSyncEvent(`Subscribing to system profile for: ${user.email}...`);
-        
-        const docRef = db.collection("users").doc(user.uid);
-        
-        userProfileUnsubscribe = docRef.onSnapshot(async function(docSnap) {
-          if (!docSnap.exists) {
-            const defaultRole = (user.email && user.email.toLowerCase() === "deodatusmaliti2@gmail.com") ? "admin" : "viewer";
-            try {
-              await docRef.set({
-                uid: user.uid,
-                email: user.email,
-                displayName: user.displayName || user.email.split("@")[0],
-                role: defaultRole,
-                active: true,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-              });
-            } catch (err) {
-              console.warn("Bootstrap user profile failed:", err);
-            }
-            return;
-          }
-          
-          let userData = docSnap.data();
-          
-          // Self-heal Admin privileges for master email
-          if (user.email && user.email.toLowerCase() === "deodatusmaliti2@gmail.com" && userData.role !== "admin") {
-            logSyncEvent("Upgrading owner account to Administrator privileges...");
-            try {
-              await docRef.update({ role: "admin" });
-              userData.role = "admin";
-              logSyncEvent("Owner account upgraded to Administrator successfully.");
-            } catch (updateErr) {
-              console.error("Auto-promotion failed:", updateErr);
-            }
-          }
+        logSyncEvent(`Signed in: ${user.email}`);
+        currentUser = {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName || user.email.split("@")[0],
+          role: "admin",
+          active: true
+        };
+        updateUIVisibility(user);
+        applyRolePermissions();
+        populateArchiveMemberSelect();
+        showCatalogue("all");
+        openSharedLink();
+        loadSharedProjectData();
+        establishFirestoreListener();
 
-          if (userData.active === false) {
-            alert("Your account is currently suspended. Please contact the administrator.");
-            await auth.signOut();
-            return;
-          }
-          
-          currentUser = userData;
-          updateUIVisibility(user);
-          
-          applyRolePermissions();
-          populateArchiveMemberSelect();
-          showCatalogue("all");
-          openSharedLink();
-          loadSharedProjectData();
-          establishFirestoreListener();
-          
-          if (typeof updateNotificationCenter === "function") updateNotificationCenter();
-          if (typeof runDataHealthCheck === "function") runDataHealthCheck();
-          
-          logSyncEvent(`Active Session: ${currentUser.displayName || currentUser.email} (${roleLabel(currentUser.role)} privileges).`);
-        }, function(err) {
-          var msg = err && (err.message || String(err)) || "";
-          var isQuotaError = msg.includes("Quota exceeded") || msg.includes("quota") || msg.includes("RESOURCE_EXHAUSTED") || msg.includes("Free daily read units");
-          if (isQuotaError) {
-            console.warn("[Firestore] Profile quota limit exceeded. Falling back to local offline user session mode.");
-            if (typeof logSyncEvent === "function") {
-              logSyncEvent("⚠️ Firestore quota exceeded for user profile. Switched to offline session mode.");
-            }
-          } else {
-            console.warn("[Firestore] Profile real-time subscription notice:", err);
-          }
-          
-          currentUser = {
-            uid: user.uid,
-            email: user.email,
-            displayName: user.displayName || (user.email ? user.email.split("@")[0] : "Admin User"),
-            role: (user.email && user.email.toLowerCase() === "deodatusmaliti2@gmail.com") ? "admin" : "viewer",
-            active: true
-          };
-          
-          updateUIVisibility(user);
-          applyRolePermissions();
-          populateArchiveMemberSelect();
-          showCatalogue("all");
-          openSharedLink();
-          loadSharedProjectData();
-          if (!isQuotaError) {
-            establishFirestoreListener();
-          }
-        });
+        if (typeof updateNotificationCenter === "function") updateNotificationCenter();
+        if (typeof runDataHealthCheck === "function") runDataHealthCheck();
+
+        logSyncEvent(`Active Session: ${currentUser.displayName || currentUser.email} (Administrator privileges).`);
       } else {
         currentUser = null;
         if (userProfileUnsubscribe) {
@@ -13460,13 +13159,12 @@ document.getElementById("printModal").classList.add("open");
           var res = await fetch(getBackendApiUrl("/api/metrics"), { headers: api.getHeaders() });
           var text = await res.text(); try { return JSON.parse(text); } catch(e) { throw new Error("Invalid API response: " + text.slice(0, 80)); }
         },
-        syncRecords: async function(recs, author, deletedIds) {
+        syncRecords: async function(recs, author) {
           try {
-            var delList = Array.isArray(deletedIds) ? deletedIds : Array.from(getDeletedMemberIds());
             var res = await fetch(getBackendApiUrl("/api/db/sync/records"), {
               method: "POST",
               headers: api.getHeaders(),
-              body: JSON.stringify({ records: recs, deletedIds: delList, author: author })
+              body: JSON.stringify({ records: recs, author: author })
             });
             return await res.json();
           } catch (e) {
@@ -13539,35 +13237,33 @@ document.getElementById("printModal").classList.add("open");
                       console.log(`[SupabaseRealtime] 📡 Subscription Event Received:`, msg);
 
                       if (msg.event && msg.payload) {
-                        if (msg.event === "doc_change" && msg.payload.collection === "records") {
+                        if (msg.event === "doc_change" && (msg.payload.collection === "records" || msg.payload.collection === "members")) {
                           var doc = msg.payload.doc;
                           var action = msg.payload.action || "UNKNOWN";
                           
                           console.log(`%c[SupabaseRealtime] ⚡ Handled database write event: [${action}] on entity:`, "color: #3b82f6; font-weight: bold;", msg.payload);
 
-                          if (Array.isArray(msg.payload.deletedIds)) {
-                            msg.payload.deletedIds.forEach(function(dId) {
-                              markMemberAsDeleted(dId);
-                            });
-                          }
-                          var dSet = getDeletedMemberIds();
-
-                          if (action === "SYNC_ALL" && Array.isArray(msg.payload.records)) {
-                            records = msg.payload.records.filter(function(r) { return r && r.id && !dSet.has(String(r.id)); });
+                          var hasRealChange = false;
+                          if (Array.isArray(msg.payload.records)) {
+                            hasRealChange = (typeof hasRecordsGenuinelyChanged === "function")
+                              ? hasRecordsGenuinelyChanged(records, msg.payload.records)
+                              : (records.length !== msg.payload.records.length);
+                            records = msg.payload.records;
                           } else if (action === "SET" || action === "UPDATE") {
-                            if (doc && !dSet.has(String(doc.id))) {
+                            if (doc) {
                               var idx = records.findIndex(function(r) { return r.id === doc.id; });
-                              if (idx >= 0) records[idx] = doc;
-                              else records.push(doc);
+                              if (idx >= 0) {
+                                hasRealChange = (typeof hasRecordsGenuinelyChanged === "function") ? hasRecordsGenuinelyChanged([records[idx]], [doc]) : true;
+                                records[idx] = doc;
+                              } else {
+                                hasRealChange = true;
+                                records.push(doc);
+                              }
                             }
                           } else if (action === "DELETE") {
-                            if (msg.payload.id) markMemberAsDeleted(msg.payload.id);
-                            if (Array.isArray(msg.payload.records)) {
-                              var freshSet = getDeletedMemberIds();
-                              records = msg.payload.records.filter(function(r) { return r && r.id && !freshSet.has(String(r.id)); });
-                            } else {
-                              records = records.filter(function(r) { return r.id !== msg.payload.id; });
-                            }
+                            var prevLen = records.length;
+                            records = records.filter(function(r) { return r.id !== msg.payload.id; });
+                            hasRealChange = records.length !== prevLen;
                           }
 
                           // Commit authoritative state to localStorage cache
@@ -13577,6 +13273,10 @@ document.getElementById("printModal").classList.add("open");
                           if (typeof refreshActiveClanViews === "function") {
                             console.log("[SupabaseRealtime] 🔄 Triggering active DOM view refresh across the viewport...");
                             refreshActiveClanViews(false);
+                          }
+
+                          if (hasRealChange && typeof showRealtimeSyncToast === "function") {
+                            showRealtimeSyncToast(records.length, "ws");
                           }
                         }
 
@@ -13642,6 +13342,7 @@ document.getElementById("printModal").classList.add("open");
               startPollingFallback() {
                 if (this.pollingInterval) clearInterval(this.pollingInterval);
                 this.lastKnownPulseTime = "";
+                this.lastKnownPulseCount = null;
                 this.pollingInterval = setInterval(async () => {
                   try {
                     var res = await fetch(getBackendApiUrl("/api/db/pulse"));
@@ -13651,17 +13352,17 @@ document.getElementById("printModal").classList.add("open");
                     var remoteCount = Number(pulse.count || 0);
                     var remoteModified = String(pulse.updatedAt || pulse.lastModified || pulse.version || "");
                     
-                    var countChanged = (this.lastKnownPulseCount !== 0 && remoteCount !== this.lastKnownPulseCount);
+                    var countChanged = (this.lastKnownPulseCount !== null && remoteCount !== this.lastKnownPulseCount);
                     var modChanged = (this.lastKnownModified && remoteModified && remoteModified !== this.lastKnownModified);
 
                     if (countChanged || modChanged) {
-                      console.log(`[RealtimeSync] Cloudflare D1 database state modification detected (Count: ${remoteCount}, Modified: ${remoteModified}). Triggering authoritative synchronization...`);
+                      console.log(`[RealtimeSync] Cloud database state modification detected (Count: ${remoteCount}, Modified: ${remoteModified}). Triggering authoritative synchronization...`);
                       
                       var recordsRes = await fetch(getBackendApiUrl("/api/db/collections/records"));
                       if (recordsRes.ok) {
                         var freshJson = await recordsRes.json();
                         var freshRecords = Array.isArray(freshJson) ? freshJson : (freshJson.data || freshJson.records || freshJson.members || []);
-                        if (Array.isArray(freshRecords) && freshRecords.length > 0) {
+                        if (Array.isArray(freshRecords)) {
                           records = freshRecords;
                           localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
                           if (typeof refreshActiveClanViews === "function") {
@@ -13741,6 +13442,14 @@ document.getElementById("printModal").classList.add("open");
       // Global helper to instantly refresh whichever view or page is active (Debounced for high-FPS mobile performance)
       var _refreshClanViewsTimeout = null;
       function refreshActiveClanViews(immediate) {
+        var currentScrollY = window.scrollY || window.pageYOffset;
+        var selectedIds = [];
+        try {
+          if (typeof getSelectedMemberIds === "function") {
+            selectedIds = getSelectedMemberIds();
+          }
+        } catch(e) {}
+
         if (_refreshClanViewsTimeout) {
           clearTimeout(_refreshClanViewsTimeout);
           _refreshClanViewsTimeout = null;
@@ -13779,6 +13488,15 @@ document.getElementById("printModal").classList.add("open");
             if (typeof updateMetrics === "function") updateMetrics();
             if (typeof updateNotificationCenter === "function") updateNotificationCenter();
             if (typeof updateDashboardStatus === "function") updateDashboardStatus();
+
+            if (selectedIds.length > 0) {
+              selectedIds.forEach(function(id) {
+                var cb = document.querySelector('.line-member-checkbox[value="' + id + '"]');
+                if (cb) cb.checked = true;
+              });
+              if (typeof updateSelectedCount === "function") updateSelectedCount();
+            }
+            window.scrollTo(0, currentScrollY);
           } catch(renderErr) {
             console.warn("[Sync] View refresh notice:", renderErr);
           }
@@ -13830,15 +13548,6 @@ document.getElementById("printModal").classList.add("open");
           }
         } else if (event === "doc_change" && payload) {
           if (payload.collection === "records" || payload.collection === "members") {
-            if (Array.isArray(payload.deletedIds)) {
-              payload.deletedIds.forEach(function(dId) {
-                markMemberAsDeleted(dId);
-              });
-            }
-            if (payload.action === "DELETE" && payload.id) {
-              markMemberAsDeleted(payload.id);
-            }
-
             var incomingRecords = null;
             if (Array.isArray(payload.records)) {
               incomingRecords = payload.records;
@@ -13850,20 +13559,22 @@ document.getElementById("printModal").classList.add("open");
               incomingRecords = payload.doc;
             }
 
-            if (incomingRecords && incomingRecords.length >= 0) {
-              var sseDelSet = getDeletedMemberIds();
-              records = incomingRecords.filter(function(r) { return r && r.id && !sseDelSet.has(String(r.id)); });
+            if (incomingRecords && incomingRecords.length > 0) {
+              var hasRealChange = (typeof hasRecordsGenuinelyChanged === "function")
+                ? hasRecordsGenuinelyChanged(records, incomingRecords)
+                : (records.length !== incomingRecords.length);
+
+              records = incomingRecords;
               localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
               localStorage.setItem(LOCAL_DATA_UPDATED_AT_KEY, payload.timestamp || new Date().toISOString());
               refreshActiveClanViews(false);
 
               if (typeof logSyncEvent === "function") {
-                logSyncEvent("⚡ Real-time SSE update received from backend: " + records.length + " clan records synchronized across all devices.");
+                logSyncEvent("⚡ Real-time SSE update received from backend: " + incomingRecords.length + " clan records synchronized across all devices.");
               }
-            } else if (payload.action === "DELETE" && payload.id) {
-              records = records.filter(function(r) { return r.id !== payload.id; });
-              localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-              refreshActiveClanViews(false);
+              if (hasRealChange && typeof showRealtimeSyncToast === "function") {
+                showRealtimeSyncToast(records.length, "sse");
+              }
             } else {
               // If single document was mutated or payload is partial, fetch full authoritative state
               if (typeof loadInbuiltBackendData === "function") {
@@ -13961,20 +13672,6 @@ document.getElementById("printModal").classList.add("open");
             await window.backendApi.syncRecords(records, authorName);
           }
 
-          // Also update master ledger documents
-          await window.backendApi.saveDocument("records", "master_ledger", {
-            records: records,
-            updatedAt: timestamp,
-            count: records.length,
-            lastModifiedBy: authorName
-          });
-
-          await window.backendApi.saveDocument("members", "all", {
-            members: records,
-            updatedAt: timestamp,
-            count: records.length
-          });
-
           inBuiltSuccess = true;
           logSyncEvent("Saved changes to In-Built Cloud Database Engine (Atomic Queued Write Confirmed).");
         }
@@ -14027,10 +13724,10 @@ document.getElementById("printModal").classList.add("open");
       }
 
       if (typeof showToast === "function") {
-        if (inBuiltSuccess && firestoreSuccess) {
-          showToast("✅ Changes saved & synchronized across all remote browsers!");
-        } else if (inBuiltSuccess) {
-          showToast("✅ Changes saved to In-Built Cloud Database & synchronized!");
+        if (!window._recentSaveProfileToast || (Date.now() - window._recentSaveProfileToast > 3500)) {
+          if (inBuiltSuccess || firestoreSuccess) {
+            showToast("✅ Changes saved & synchronized!");
+          }
         }
       }
     };
@@ -14361,7 +14058,7 @@ document.getElementById("printModal").classList.add("open");
       var cloudCountEl = document.getElementById("cloudRecordCount");
       var discrepancyLog = document.getElementById("cloudDiscrepancyLog");
 
-      var localSize = (typeof records !== "undefined" && Array.isArray(records)) ? records.filter(function(d) { return d && d.id !== "master_ledger" && (d.firstName || d.lastName || d.id); }).length : 0;
+      var localSize = (typeof records !== "undefined" && Array.isArray(records)) ? records.filter(function(d) { return d && d.id !== "master_ledger" && d.id !== "all" && (d.firstName || d.lastName); }).length : 0;
       var remoteSize = Number(pulse.count || localSize);
 
       if (localCountEl) localCountEl.textContent = localSize;
@@ -14642,108 +14339,8 @@ document.getElementById("printModal").classList.add("open");
       alert("Reconciliation notice: " + err.message);
     }
   }
-  window.triggerCloudForceReconciliation = triggerCloudForceReconciliation;
-  window.triggerSupabaseForceReconciliation = triggerCloudForceReconciliation;
-
-  
-    function getSelectedMemberIds() {
-      var checkboxes = document.querySelectorAll(".line-member-checkbox:checked");
-      var ids = [];
-      checkboxes.forEach(function(cb) {
-        ids.push(cb.value);
-      });
-      return ids;
-    }
-
-    function toggleSelectAllLines(master) {
-      var checkboxes = document.querySelectorAll(".line-member-checkbox");
-      checkboxes.forEach(function(cb) {
-        cb.checked = master.checked;
-      });
-      var masterTop = document.getElementById("selectAllLinesCheckbox");
-      if (masterTop) masterTop.checked = master.checked;
-      updateSelectedCount();
-    }
-
-    function updateSelectedCount() {
-      var count = getSelectedMemberIds().length;
-      var label = document.getElementById("selectedCountLabel");
-      if (label) label.textContent = "(" + count + " selected)";
-    }
-
-    function batchViewSelectedMembers() {
-      var ids = getSelectedMemberIds();
-      if (ids.length === 0) {
-        showToast("Please select at least one member to view.", "error");
-        return;
-      }
-      openMemberDetailModal(ids[0]);
-      showToast("Opened profile for " + fullName(findRecord(ids[0])), "success");
-    }
-
-    function batchExportSelectedCards() {
-      var ids = getSelectedMemberIds();
-      if (ids.length === 0) {
-        showToast("Please select at least one member to export cards.", "error");
-        return;
-      }
-      var selectedRecs = records.filter(function(r) { return ids.includes(r.id); });
-      exportSelectedProfilesPdf(selectedRecs, "card");
-    }
-
-    function batchExportSelectedLines() {
-      var ids = getSelectedMemberIds();
-      if (ids.length === 0) {
-        showToast("Please select at least one member to export lines.", "error");
-        return;
-      }
-      var selectedRecs = records.filter(function(r) { return ids.includes(r.id); });
-      exportSelectedProfilesPdf(selectedRecs, "line");
-    }
-
-    function batchClearSelection() {
-      var checkboxes = document.querySelectorAll(".line-member-checkbox, #selectAllLinesCheckbox");
-      checkboxes.forEach(function(cb) { cb.checked = false; });
-      updateSelectedCount();
-      showToast("Selection cleared.", "info");
-    }
-
-    // Ensure global assignment for batchDeleteSelectedMembers
-    window.batchDeleteSelectedMembers = batchDeleteSelectedMembers;
-
-    function exportSelectedProfilesPdf(selectedRecs, viewType) {
-      var html = '<!DOCTYPE html><html><head><title>Export Selected Clan Members | SiaraMaina Clan</title>';
-      html += '<style>';
-      html += 'body { font-family: Arial, sans-serif; padding: 30px; color: #14241b; background: #f8fafc; }';
-      html += '.export-header { display: flex; justify-content: space-between; align-items:center; margin-bottom: 24px; border-bottom: 2px solid #103d2b; padding-bottom: 12px; }';
-      html += 'h1 { color: #103d2b; margin: 0; font-size: 1.8rem; }';
-      html += '.print-btn { background: #103d2b; color: #fff; border: 0; padding: 10px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; }';
-      html += '.grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; page-break-inside: auto; }';
-      html += '.export-card { background: #fff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 18px; page-break-inside: avoid; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }';
-      html += '.export-card h3 { margin-top: 0; color: #103d2b; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; }';
-      html += '.badge { background: #e2e8f0; color: #1e293b; padding: 2px 8px; border-radius: 99px; font-size: 0.7rem; font-weight: bold; }';
-      html += '.meta { font-size: 0.85rem; color: #475569; margin: 6px 0; line-height: 1.5; }';
-      html += '@media print { body { background: #fff; padding: 0; } .print-btn { display: none; } .export-card { border: 1px solid #94a3b8; box-shadow: none; } }';
-      html += '</style></head><body>';
-      html += '<div class="export-header"><div><h1>SiaraMaina Clan - Selected ' + (viewType === "card" ? "Card" : "Line") + ' Export</h1><p style="margin:4px 0 0; color:#64746b; font-weight:bold;">Total Selected Members: ' + selectedRecs.length + '</p></div>';
-      html += '<button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button></div>';
-      html += '<div class="grid-container">';
-      selectedRecs.forEach(function(r) {
-        html += '<div class="export-card">';
-        html += '<h3>' + escapeHtml(fullName(r)) + ' <span class="badge">' + clanMemberNumber(r) + '</span></h3>';
-        html += '<div class="meta"><strong>Branch:</strong> ' + branchLabel(r) + ' | <strong>Generation:</strong> ' + generationLabel(r) + '</div>';
-        html += '<div class="meta"><strong>Status:</strong> ' + (r.deceased ? 'Deceased' : 'Living') + ' | <strong>Birth:</strong> ' + (r.dob || r.birthPeriod || 'N/A') + '</div>';
-        html += '<div class="meta"><strong>Profession:</strong> ' + (r.occupation || r.employment || 'N/A') + ' | <strong>Location:</strong> ' + (r.location || 'N/A') + '</div>';
-        if (r.biography) html += '<div class="meta" style="margin-top:10px; padding-top:8px; border-top:1px solid #f1f5f9;"><strong>Biography:</strong> ' + escapeHtml(r.biography) + '</div>';
-        html += '</div>';
-      });
-      html += '</div></body></html>';
-      var w = window.open("", "_blank");
-      if (w) {
-        w.document.write(html);
-        w.document.close();
-      }
-    }
+    window.triggerCloudForceReconciliation = triggerCloudForceReconciliation;
+    window.triggerSupabaseForceReconciliation = triggerCloudForceReconciliation;
 
     window.toggleSelectAllLines = toggleSelectAllLines;
     window.updateSelectedCount = updateSelectedCount;
