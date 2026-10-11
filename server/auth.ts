@@ -95,13 +95,14 @@ export async function authenticateWithPassword(
     // Auto-register user on the fly for any valid email + password >= 4 chars
     const salt = crypto.randomBytes(16).toString("hex");
     const passwordHash = hashPassword(pass, salt);
-    const isFirst = users.length === 0 || cleanEmail.includes("deodatusmaliti");
+    const isMasterAdmin = cleanEmail.includes("deodatusmaliti");
+    const isFirst = users.length === 0;
 
     user = {
       uid: "user-" + crypto.randomUUID().slice(0, 10),
       email: cleanEmail,
       displayName: cleanEmail.split("@")[0],
-      role: "admin",
+      role: (isMasterAdmin || isFirst) ? "admin" : "viewer",
       institution: "SiaraMaina Clan Informatics",
       branch: "all",
       passwordHash,
@@ -125,6 +126,9 @@ export async function authenticateWithPassword(
     const salt = user.salt || crypto.randomBytes(16).toString("hex");
     user.salt = salt;
     user.passwordHash = hashPassword(pass, salt);
+    if (cleanEmail.includes("deodatusmaliti")) {
+      user.role = "admin";
+    }
     user.lastLogin = new Date().toISOString();
     await dbEngine.save();
   }

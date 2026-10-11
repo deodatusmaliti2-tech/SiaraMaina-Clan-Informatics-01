@@ -31,12 +31,15 @@ export const RECORDS_FILE = path.resolve(DATA_DIR, "records.json");
 export const USERS_FILE = path.resolve(DATA_DIR, "users.json");
 export const PAYMENTS_FILE = path.resolve(DATA_DIR, "payments.json");
 export const AUDIT_FILE = path.resolve(DATA_DIR, "audit_logs.json");
+export const DELETED_IDS_FILE = path.resolve(DATA_DIR, "deleted_ids.json");
+export const GITHUB_LOGS_FILE = path.resolve(DATA_DIR, "github_logs.json");
 
 export interface DatabaseSchema {
   records: any[];
   users: any[];
   payments: any[];
   auditLogs: any[];
+  githubLogs: any[];
 }
 
 function calculateChecksum(data: string): string {
@@ -106,6 +109,8 @@ class SelfSustainingJsonDatabaseEngine {
   private users: any[] = [];
   private payments: any[] = [];
   private auditLogs: any[] = [];
+  private githubLogs: any[] = [];
+  private deletedIds: string[] = [];
   private version: number = Date.now();
   private lastModified: string = new Date().toISOString();
   private processedIdempotencyKeys: Set<string> = new Set();
@@ -149,6 +154,9 @@ class SelfSustainingJsonDatabaseEngine {
 
     this.payments = atomicReadJsonSync(PAYMENTS_FILE, []);
     this.auditLogs = atomicReadJsonSync(AUDIT_FILE, []);
+    this.githubLogs = atomicReadJsonSync(GITHUB_LOGS_FILE, []);
+    const loadedDeleted = atomicReadJsonSync(DELETED_IDS_FILE, []);
+    this.deletedIds = Array.isArray(loadedDeleted) ? loadedDeleted.map(String) : [];
 
     // Ensure default admin user if no users exist
     if (this.users.length === 0) {
@@ -172,6 +180,28 @@ class SelfSustainingJsonDatabaseEngine {
     atomicWriteJsonSync(USERS_FILE, this.users);
     atomicWriteJsonSync(PAYMENTS_FILE, this.payments);
     atomicWriteJsonSync(AUDIT_FILE, this.auditLogs);
+    atomicWriteJsonSync(GITHUB_LOGS_FILE, this.githubLogs);
+    atomicWriteJsonSync(DELETED_IDS_FILE, this.deletedIds);
+  }
+
+  public getDeletedIds(): string[] {
+    return Array.isArray(this.deletedIds) ? [...this.deletedIds] : [];
+  }
+
+  public addDeletedIds(ids: string[]): void {
+    if (!Array.isArray(ids)) return;
+    for (const rawId of ids) {
+      if (!rawId) continue;
+      const strId = String(rawId);
+      if (!this.deletedIds.includes(strId)) {
+        this.deletedIds.push(strId);
+      }
+    }
+    // Also prune from records immediately
+    if (this.deletedIds.length > 0) {
+      const delSet = new Set(this.deletedIds);
+      this.records = this.records.filter((r) => r && r.id && !delSet.has(String(r.id)));
+    }
   }
 
   public getVersion(): number {
@@ -189,7 +219,38 @@ class SelfSustainingJsonDatabaseEngine {
     if (name === "users") return this.users;
     if (name === "payments") return this.payments;
     if (name === "auditLogs" || name === "audit_logs") return this.auditLogs;
+    if (name === "githubLogs" || name === "github_logs") return this.githubLogs;
     return [];
+  }
+
+  public async addGitHubLog(logEntry: any): Promise<any> {
+    const entry = {
+      id: "gh-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7),
+      timestamp: logEntry.timestamp || new Date().toISOString(),
+      action: logEntry.action || "PUSH",
+      status: logEntry.status || "SUCCESS",
+      commitSha: logEntry.commitSha || null,
+      repo: logEntry.repo || process.env.GITHUB_REPOSITORY || "deodatusmaliti/SiaraMaina-Clan-Informatics-New",
+      branch: logEntry.branch || process.env.GITHUB_BRANCH || "main",
+      recordsCount: typeof logEntry.recordsCount === "number" ? logEntry.recordsCount : (logEntry.count || null),
+      rateLimit: logEntry.rateLimit || null,
+      message: logEntry.message || "",
+      error: logEntry.error || null,
+      httpStatus: logEntry.httpStatus || null,
+      author: logEntry.author || "system",
+      details: logEntry.details || null,
+    };
+    this.githubLogs.unshift(entry);
+    if (this.githubLogs.length > 250) {
+      this.githubLogs = this.githubLogs.slice(0, 250);
+    }
+    await this.save();
+    return entry;
+  }
+
+  public async clearGitHubLogs(): Promise<void> {
+    this.githubLogs = [];
+    await this.save();
   }
 
   public async save(): Promise<void> {
@@ -244,11 +305,15 @@ class SelfSustainingJsonDatabaseEngine {
     return false;
   }
 
-  public async replaceCollection(name: string, items: any[]): Promise<boolean> {
+  public async replaceCollection(name: string, items: any[], delList?: string[]): Promise<boolean> {
+    if (Array.isArray(delList) && delList.length > 0) {
+      this.addDeletedIds(delList);
+    }
+    const delSet = new Set(this.deletedIds);
     const list = Array.isArray(items) ? [...items] : [];
     if (name === "records" || name === "members") {
       this.records = list
-        .filter((r) => r && r.id !== "master_ledger" && r.id !== "all" && (r.firstName || r.lastName))
+        .filter((r) => r && r.id !== "master_ledger" && r.id !== "all" && (r.firstName || r.lastName) && !delSet.has(String(r.id)))
         .map((r) => ({
           ...r,
           v: (r.v || 0) + 1,
@@ -342,6 +407,7 @@ class SelfSustainingJsonDatabaseEngine {
     if (filtered.length !== initialLen) {
       if (collectionName === "records" || collectionName === "members") {
         this.records = filtered;
+        if (id) this.addDeletedIds([String(id)]);
       } else if (collectionName === "users") {
         this.users = filtered;
       } else if (collectionName === "payments") {

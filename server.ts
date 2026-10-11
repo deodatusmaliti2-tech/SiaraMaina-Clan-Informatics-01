@@ -113,6 +113,17 @@ const server = app.listen(Number(PORT), "0.0.0.0", () => {
   console.log(`SiaraMaina Hardened Backend Engine running on http://0.0.0.0:${PORT} [${isProd ? "PROD" : "DEV"}]`);
 });
 
+server.on("error", (err: any) => {
+  if (err.code === "EADDRINUSE") {
+    console.warn(`[Server] Port ${PORT} is already in use. Retrying on port 3001...`);
+    server.listen(3001, "0.0.0.0", () => {
+      console.log(`[Server] SiaraMaina Hardened Backend Engine running on http://0.0.0.0:3001`);
+    });
+  } else {
+    console.error("[Server] Listen error:", err);
+  }
+});
+
 const wss = new WebSocketServer({ server, path: "/api/sync/ws" });
 wss.on("connection", (ws, req) => {
   syncManager.registerWebSocket(ws, req);
