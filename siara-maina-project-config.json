@@ -1,0 +1,22 @@
+{
+  "project": "SiaraMaina Clan Informatics",
+  "version": "2.5.0",
+  "exportedAt": "2026-10-17T09:40:18.415Z",
+  "repository": "deodatusmaliti2-tech/SiaraMaina-Clan-Informatics-01",
+  "environment": "production",
+  "publishedFiles": [
+    "index.html",
+    "SiaraMainaInformatics.html",
+    "siara-maina-clan-data.json",
+    "siara-maina-users.json",
+    "siara-maina-settings.json",
+    "siara-maina-sync-logs.json"
+  ],
+  "features": {
+    "userManagement": true,
+    "githubSync": true,
+    "cloudSync": true,
+    "rbac": true,
+    "fullAppCloning": true
+  }
+}
