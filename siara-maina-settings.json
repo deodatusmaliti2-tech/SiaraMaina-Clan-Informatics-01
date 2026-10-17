@@ -1,0 +1,14 @@
+{
+  "project": "SiaraMaina Clan Informatics - App Configurations & Settings",
+  "exportedAt": "2026-10-17T09:40:18.415Z",
+  "lastPublishedBy": "Victor Maliti",
+  "settings": {
+    "viewStyle": "card",
+    "showSpouseRecords": true,
+    "currentFilter": "all",
+    "customFilter": {},
+    "customQuery": ""
+  },
+  "customBackendUrl": "",
+  "detailViewMode": "drawer"
+}
